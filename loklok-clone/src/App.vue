@@ -1,27 +1,34 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div id="app-container">
+    <ToolBar @undo="undo"></ToolBar>
+    <Canvas ref="canvas"></Canvas>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import Canvas from './components/Canvas.vue';
+import ToolBar from './components/ToolBar.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
-    HelloWorld
+    Canvas,
+    ToolBar
+  },
+  methods: {
+    undo(): void {
+      this.$refs.canvas.undo()
+    }
   }
 });
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+#app-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>
