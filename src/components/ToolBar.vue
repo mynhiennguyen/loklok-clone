@@ -1,7 +1,7 @@
 <template>
 <div id="toolbar">
   <button @click="undo">Undo</button>
-  <button>Redo</button>
+  <button @click="redo">Redo</button>
 </div>
 </template>
 
@@ -9,11 +9,14 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: 'ToolBar',
-    emits: ['undo', 'redo'],
+    name: "ToolBar",
+    emits: ["undo", "redo"],
     methods: {
-      undo() {
-        this.$emit('undo')
+      undo(): void {
+        this.$emit("undo")
+      },
+      redo(): void {
+        this.$emit("redo")
       }
     }
     

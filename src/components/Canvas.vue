@@ -35,14 +35,12 @@ export default defineComponent({
       "2d"
     );
     this.vueCanvas = context;
-
-    window.addEventListener('resize', this.resizeCanvas) //TODO: resizing will reset entire canvas, drawing needs to be redrawn
-
     this.resizeCanvas();
+
+    window.addEventListener("resize", this.resizeCanvas) //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
     beginDrawing(e: MouseEvent): void {
-      console.log("begin")
       this.isDrawing = true;
       this.x = e.offsetX;
       this.y = e.offsetY;
@@ -70,9 +68,11 @@ export default defineComponent({
         this.history.push(this.currentAction);
         this.currentAction = null;
         this.isDrawing = false;
+        this.redoStack = []; //once new drawing is added, clear redoStack
       }
     },
     undo(): void {
+      if(this.history.length > 0) {
       const lastAction: Action = this.history.pop();
       this.redoStack.push(lastAction);
 
@@ -86,8 +86,16 @@ export default defineComponent({
       this.history.forEach((action: Action) => {
         action.execute();
       });
+      }
     },
-    resizeCanvas(): boolean {
+    redo(): void {
+      if(this.redoStack.length > 0) {
+        const lastAction: Action = this.redoStack.pop();
+        this.history.push(lastAction);
+        lastAction.execute();
+      }
+    },
+    resizeCanvas(): void{
       // look up the size the canvas is being displayed
       const canvas: HTMLCanvasElement = document.getElementById(
         "canvas"
@@ -95,14 +103,11 @@ export default defineComponent({
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
 
-      // If it's resolution does not match change it
+      // If its resolution does not match change it
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
-        return true;
       }
-
-      return false;
     },
   },
 });

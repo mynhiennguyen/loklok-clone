@@ -1,6 +1,6 @@
 <template>
   <div id="app-container">
-    <ToolBar @undo="undo"></ToolBar>
+    <ToolBar @undo="undo" @redo="redo"></ToolBar>
     <Canvas ref="canvas"></Canvas>
   </div>
 </template>
@@ -11,7 +11,7 @@ import Canvas from './components/Canvas.vue';
 import ToolBar from './components/ToolBar.vue';
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
   components: {
     Canvas,
     ToolBar
@@ -19,6 +19,9 @@ export default defineComponent({
   methods: {
     undo(): void {
       this.$refs.canvas.undo()
+    },
+    redo(): void {
+      this.$refs.canvas.redo()
     }
   }
 });
