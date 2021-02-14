@@ -2,9 +2,9 @@
   <div>
     <canvas
       id="canvas"
-      @mousedown="beginDrawing"
-      @mouseup="stopDrawing"
-      @mousemove="draw"
+      @pointerdown="beginDrawing"
+      @pointerup="stopDrawing"
+      @pointermove="draw"
     >
     </canvas>
   </div>
@@ -42,6 +42,7 @@ export default defineComponent({
   },
   methods: {
     beginDrawing(e: MouseEvent): void {
+      console.log("begin")
       this.isDrawing = true;
       this.x = e.offsetX;
       this.y = e.offsetY;
@@ -120,5 +121,6 @@ export default defineComponent({
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: hidden;
+  touch-action: none;
 }
 </style>
