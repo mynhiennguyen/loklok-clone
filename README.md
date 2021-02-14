@@ -31,9 +31,9 @@ To summarize, the LokLok app was a digital whiteboard that is always in-sync wit
 It lets you draw, write and add photos to the board. It's unique key feature is the usage of the **lock-screen** of your smartphone as communication medium.
 
 Impressions and more detailed descriptions about the original LokLok app can be found under these sources:
-https://thenextweb.com/apps/2014/07/07/loklok/
-https://androidappsforme.com/loklok-app-review/
-https://www.youtube.com/watch?v=patgOkFHOgU
+* https://thenextweb.com/apps/2014/07/07/loklok/
+* https://androidappsforme.com/loklok-app-review/
+* https://www.youtube.com/watch?v=patgOkFHOgU
 
 ## Requirements for the clone
 
