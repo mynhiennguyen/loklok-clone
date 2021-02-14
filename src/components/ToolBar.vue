@@ -25,8 +25,12 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 1000px;
+    width: 100vw;
     height: 100px;
     background-color: sandybrown;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
 }
 </style>

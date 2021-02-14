@@ -25,10 +25,12 @@ export default defineComponent({
 </script>
 
 <style>
+body, html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
 #app-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  position: relative;
 }
 </style>
