@@ -1,11 +1,4 @@
-/**
- * Interface for any Action made on the Canvase, e.g Drawing or Erasing
- */
-export interface Action {
-
-    execute(): void;
-    undo(): void; //TODO: Is this needed?
-}
+import { Action } from "./interfaces/action";
 
 export class DrawingAction implements Action {
     ctx: CanvasRenderingContext2D //Canvas to be drawn on
@@ -39,9 +32,5 @@ export class DrawingAction implements Action {
         this.ctx.lineTo(x2, y2);
         this.ctx.stroke();
         this.ctx.closePath();
-    }
-
-    undo(){
-        //Is this method even needed?
     }
 }

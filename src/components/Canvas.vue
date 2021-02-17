@@ -12,7 +12,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Action, DrawingAction } from "../types/action";
+import { Action } from "../types/interfaces/action";
+import { DrawingAction } from "../types/drawingAction";
 
 export default defineComponent({
   name: "Canvas",
