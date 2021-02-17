@@ -119,7 +119,7 @@ export default defineComponent({
     },
     handlePointerMove(ev: PointerEvent) {
       ev.preventDefault();
-      if(this.touchPointCache.length == 2){
+      if(this.touchPointCache.length >= 2){
         //TODO: Erase-mode
         document.getElementById("toolbar").style.backgroundColor = "blue"
       }
@@ -135,8 +135,8 @@ export default defineComponent({
         const index = this.touchPointCache.indexOf(ev.pointerId)
         this.touchPointCache.splice(index, 1)
       }
-      if(this.touchPointCache.length < 2){
-        //TODO: Erase-mode
+      if(this.touchPointCache.length <= 1){
+        //TODO: Erase-mode done
         document.getElementById("toolbar").style.backgroundColor = "sandybrown"
       }
     },
