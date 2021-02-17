@@ -2,11 +2,9 @@
   <div>
     <canvas
       id="canvas"
-      @pointerdown="beginDrawing"
-      @pointerup="stopDrawing"
-      @pointermove="draw"
-      @touchstart="handleTouchStart"
-      @touchmove="handleTouchMove"
+      @pointerdown="handlePointerDown"
+      @pointermove="handlePointerMove"
+      @pointerup="handlePointerUp"
     >
     </canvas>
   </div>
@@ -29,7 +27,7 @@ export default defineComponent({
       history: [] as Action[],
       redoStack: [] as Action[],
       currentAction: null as Action,
-      tpCache: [],
+      touchPointCache: [] as number[]
     };
   },
   mounted(): void {
@@ -112,51 +110,34 @@ export default defineComponent({
         canvas.height = height;
       }
     },
-    handleTouchStart(ev: TouchEvent) {
+    handlePointerDown(ev: PointerEvent) {
       ev.preventDefault();
-      // Check this event for 2-touch Move/Pinch/Zoom gesture
-      if (ev.targetTouches.length == 2) {
-        for (let i = 0; i < ev.targetTouches.length; i++) {
-          this.tpCache.push(ev.targetTouches[i]);
-        }
+      this.beginDrawing(ev);
+      if (ev.pointerType == "touch") {
+        this.touchPointCache.push(ev.pointerId)
       }
     },
-    handleTouchMove(ev) {
+    handlePointerMove(ev: PointerEvent) {
       ev.preventDefault();
-      if (!(ev.touches.length == 2 && ev.targetTouches.length == 2))
-        // Check this event for 2-touch Move/Pinch/Zoom gesture
-        this.handlePinchZoom(ev);
+      if(this.touchPointCache.length == 2){
+        //TODO: Erase-mode
+        document.getElementById("toolbar").style.backgroundColor = "blue"
+      }
+      else {
+        this.draw(ev);
+      }
     },
-    handlePinchZoom(ev) {
-      if (ev.targetTouches.length == 2 && ev.changedTouches.length == 2) {
-        console.log("pass")
-        // Check if the two target touches are the same ones that started
-        // the 2-touch
-        let point1 = -1,
-          point2 = -1;
-        for (let i = 0; i < this.tpCache.length; i++) {
-          if (this.tpCache[i].identifier == ev.targetTouches[0].identifier)
-            point1 = i;
-          if (this.tpCache[i].identifier == ev.targetTouches[1].identifier)
-            point2 = i;
-        }
-        if (point1 >= 0 && point2 >= 0) {
-          // Calculate the difference between the start and move coordinates
-          const diff1 = Math.abs(
-            this.tpCache[point1].clientX - ev.targetTouches[0].clientX
-          );
-          const diff2 = Math.abs(
-            this.tpCache[point2].clientX - ev.targetTouches[1].clientX
-          );
-
-          // This threshold is device dependent as well as application specific
-          const PINCH_THRESHOLD = ev.target.clientWidth / 10;
-          if (diff1 >= PINCH_THRESHOLD && diff2 >= PINCH_THRESHOLD)
-            console.log("pinch");
-        } else {
-          // empty tpCache
-          this.tpCache = [];
-        }
+    handlePointerUp(ev: PointerEvent){
+      ev.preventDefault();
+      this.stopDrawing(ev);
+      if (ev.pointerType == "touch") {
+        //remove from cache
+        const index = this.touchPointCache.indexOf(ev.pointerId)
+        this.touchPointCache.splice(index, 1)
+      }
+      if(this.touchPointCache.length < 2){
+        //TODO: Erase-mode
+        document.getElementById("toolbar").style.backgroundColor = "sandybrown"
       }
     },
   },
