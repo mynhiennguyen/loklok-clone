@@ -14,6 +14,7 @@
 import { defineComponent } from "vue";
 import { Action } from "../types/interfaces/action";
 import { DrawingAction } from "../types/drawingAction";
+import { Canvas } from "@/types/interfaces/canvas";
 
 export default defineComponent({
   name: "Canvas",
@@ -21,24 +22,20 @@ export default defineComponent({
 
   data() {
     return {
-      vueCanvas: null as CanvasRenderingContext2D,
+      canvas: null as Canvas,
       isDrawing: false,
       x: 0,
       y: 0,
       history: [] as Action[],
       redoStack: [] as Action[],
       currentAction: null as Action,
-      touchPointCache: [] as number[]
+      touchPointCache: [] as number[],
     };
   },
   mounted(): void {
-    const canvas: HTMLElement = document.getElementById("canvas");
-    const context: CanvasRenderingContext2D = (canvas as HTMLCanvasElement).getContext(
-      "2d"
-    );
-    this.vueCanvas = context;
-    this.resizeCanvas();
+    this.initCanvas();
 
+    this.resizeCanvas();
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
@@ -48,7 +45,7 @@ export default defineComponent({
       this.y = e.offsetY;
       //init new DrawingAction
       if (this.currentAction == null) {
-        this.currentAction = new DrawingAction("black", 1, this.vueCanvas);
+        this.currentAction = new DrawingAction("black", 1, this.canvas);
       }
     },
     draw(e: MouseEvent): void {
@@ -79,7 +76,7 @@ export default defineComponent({
         this.redoStack.push(lastAction);
 
         //clear canvas and redraw it
-        this.vueCanvas.clearRect(
+        this.canvas.clearRect(
           0,
           0,
           this.vueCanvas.canvas.width,
@@ -115,31 +112,37 @@ export default defineComponent({
       ev.preventDefault();
       this.beginDrawing(ev);
       if (ev.pointerType == "touch") {
-        this.touchPointCache.push(ev.pointerId)
+        this.touchPointCache.push(ev.pointerId);
       }
     },
     handlePointerMove(ev: PointerEvent) {
       ev.preventDefault();
-      if(this.touchPointCache.length >= 2){
+      if (this.touchPointCache.length >= 2) {
         //TODO: Erase-mode
-        document.getElementById("toolbar").style.backgroundColor = "blue"
-      }
-      else {
+        document.getElementById("toolbar").style.backgroundColor = "blue";
+      } else {
         this.draw(ev);
       }
     },
-    handlePointerUp(ev: PointerEvent){
+    handlePointerUp(ev: PointerEvent) {
       ev.preventDefault();
       this.stopDrawing(ev);
       if (ev.pointerType == "touch") {
         //remove from cache
-        const index = this.touchPointCache.indexOf(ev.pointerId)
-        this.touchPointCache.splice(index, 1)
+        const index = this.touchPointCache.indexOf(ev.pointerId);
+        this.touchPointCache.splice(index, 1);
       }
-      if(this.touchPointCache.length <= 1){
+      if (this.touchPointCache.length <= 1) {
         //TODO: Erase-mode done
-        document.getElementById("toolbar").style.backgroundColor = "sandybrown"
+        document.getElementById("toolbar").style.backgroundColor = "sandybrown";
       }
+    },
+    initCanvas() {
+      const canvas: HTMLElement = document.getElementById("canvas");
+      const context: CanvasRenderingContext2D = (canvas as HTMLCanvasElement).getContext(
+        "2d"
+      );
+      this.canvas = context;
     },
   },
 });
