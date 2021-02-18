@@ -25,8 +25,4 @@ export class Canvas2D implements Canvas {
             this.ctx.canvas.height
         );
     }
-
-    resizeCanvas() {
-
-    }
 }

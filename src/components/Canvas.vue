@@ -15,6 +15,8 @@ import { defineComponent } from "vue";
 import { Action } from "../types/interfaces/action";
 import { DrawingAction } from "../types/drawingAction";
 import { Canvas } from "@/types/interfaces/canvas";
+import { Canvas2D } from "@/types/canvas2D";
+import { UndoManager } from "@/types/undoManager";
 
 export default defineComponent({
   name: "Canvas",
@@ -23,17 +25,17 @@ export default defineComponent({
   data() {
     return {
       canvas: null as Canvas,
+      undoManager: null as UndoManager,
       isDrawing: false,
       x: 0,
       y: 0,
-      history: [] as Action[],
-      redoStack: [] as Action[],
       currentAction: null as Action,
       touchPointCache: [] as number[],
     };
   },
   mounted(): void {
-    this.initCanvas();
+    this.canvas = this.initCanvas();
+    this.undoManager = this.initUndoManager(this.canvas);
 
     this.resizeCanvas();
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
@@ -64,35 +66,16 @@ export default defineComponent({
     stopDrawing(e: MouseEvent): void {
       if (this.isDrawing) {
         //save DrawingAction
-        this.history.push(this.currentAction);
+        this.undoManager.push(this.currentAction);
         this.currentAction = null;
         this.isDrawing = false;
-        this.redoStack = []; //once new drawing is added, clear redoStack
       }
     },
     undo(): void {
-      if (this.history.length > 0) {
-        const lastAction: Action = this.history.pop();
-        this.redoStack.push(lastAction);
-
-        //clear canvas and redraw it
-        this.canvas.clearRect(
-          0,
-          0,
-          this.vueCanvas.canvas.width,
-          this.vueCanvas.canvas.height
-        );
-        this.history.forEach((action: Action) => {
-          action.execute();
-        });
-      }
+      this.undoManager.undo();
     },
     redo(): void {
-      if (this.redoStack.length > 0) {
-        const lastAction: Action = this.redoStack.pop();
-        this.history.push(lastAction);
-        lastAction.execute();
-      }
+      this.undoManager.redo();
     },
     resizeCanvas(): void {
       // look up the size the canvas is being displayed
@@ -137,13 +120,16 @@ export default defineComponent({
         document.getElementById("toolbar").style.backgroundColor = "sandybrown";
       }
     },
-    initCanvas() {
+    initCanvas(): Canvas {
       const canvas: HTMLElement = document.getElementById("canvas");
       const context: CanvasRenderingContext2D = (canvas as HTMLCanvasElement).getContext(
         "2d"
       );
-      this.canvas = context;
+      return new Canvas2D(context);
     },
+    initUndoManager(canvas: Canvas): UndoManager{
+      return new UndoManager(canvas);
+    }
   },
 });
 </script>
