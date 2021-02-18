@@ -13,7 +13,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Action } from "../types/interfaces/action";
-import { DrawingAction } from "../types/drawingAction";
+import { ActionHandler } from "../types/actionHandler";
 import { Canvas } from "@/types/interfaces/canvas";
 import { Canvas2D } from "@/types/canvas2D";
 import { UndoManager } from "@/types/undoManager";
@@ -26,51 +26,19 @@ export default defineComponent({
     return {
       canvas: null as Canvas,
       undoManager: null as UndoManager,
-      isDrawing: false,
-      x: 0,
-      y: 0,
-      currentAction: null as Action,
+      actionHandler: null as ActionHandler,
       touchPointCache: [] as number[],
     };
   },
   mounted(): void {
     this.canvas = this.initCanvas();
     this.undoManager = this.initUndoManager(this.canvas);
+    this.actionHandler = this.initActionHandler(this.canvas);
 
     this.resizeCanvas();
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
-    beginDrawing(e: MouseEvent): void {
-      this.isDrawing = true;
-      this.x = e.offsetX;
-      this.y = e.offsetY;
-      //init new DrawingAction
-      if (this.currentAction == null) {
-        this.currentAction = new DrawingAction("black", 1, this.canvas);
-      }
-    },
-    draw(e: MouseEvent): void {
-      if (this.isDrawing && this.currentAction !== null) {
-        //executes drawing and records all points
-        this.currentAction.recordAndDrawSegment(
-          this.x,
-          this.y,
-          e.offsetX,
-          e.offsetY
-        );
-        this.x = e.offsetX;
-        this.y = e.offsetY;
-      }
-    },
-    stopDrawing(e: MouseEvent): void {
-      if (this.isDrawing) {
-        //save DrawingAction
-        this.undoManager.push(this.currentAction);
-        this.currentAction = null;
-        this.isDrawing = false;
-      }
-    },
     undo(): void {
       this.undoManager.undo();
     },
@@ -93,7 +61,7 @@ export default defineComponent({
     },
     handlePointerDown(ev: PointerEvent) {
       ev.preventDefault();
-      this.beginDrawing(ev);
+      this.actionHandler.beginDrawing(ev);
       if (ev.pointerType == "touch") {
         this.touchPointCache.push(ev.pointerId);
       }
@@ -104,12 +72,15 @@ export default defineComponent({
         //TODO: Erase-mode
         document.getElementById("toolbar").style.backgroundColor = "blue";
       } else {
-        this.draw(ev);
+        this.actionHandler.draw(ev);
       }
     },
     handlePointerUp(ev: PointerEvent) {
       ev.preventDefault();
-      this.stopDrawing(ev);
+
+      const finishedAction: Action = this.actionHandler.stopDrawing(ev);
+      this.undoManager.push(finishedAction);
+
       if (ev.pointerType == "touch") {
         //remove from cache
         const index = this.touchPointCache.indexOf(ev.pointerId);
@@ -129,7 +100,10 @@ export default defineComponent({
     },
     initUndoManager(canvas: Canvas): UndoManager{
       return new UndoManager(canvas);
-    }
+    },
+    initActionHandler(canvas: Canvas): ActionHandler{
+      return new ActionHandler(canvas);
+    },
   },
 });
 </script>

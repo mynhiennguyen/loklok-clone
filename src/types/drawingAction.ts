@@ -20,7 +20,7 @@ export class DrawingAction implements Action {
         }
     }
 
-    recordAndDrawSegment(x1: number, y1: number, x2: number, y2: number){
+    recordAndExecute(x1: number, y1: number, x2: number, y2: number){
         //record path
         this.points.push([x1, y1]) //TODO: there will be duplicate points, optimize
         this.points.push([x2, y2])
