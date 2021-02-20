@@ -1,6 +1,6 @@
-import { Canvas } from "./interfaces/canvas";
+import { CanvasUI } from "./interfaces/canvas";
 
-export class Canvas2D implements Canvas {
+export class Canvas2D implements CanvasUI {
     ctx: CanvasRenderingContext2D = null;
 
     constructor(ctx: CanvasRenderingContext2D) {
@@ -20,6 +20,7 @@ export class Canvas2D implements Canvas {
         this.ctx.strokeStyle = strokeStyle;
         this.ctx.lineWidth = lineWidth;
         this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
         this.ctx.globalCompositeOperation = 'source-over';
         this.ctx.beginPath();
         this.ctx.moveTo(x1, y1);

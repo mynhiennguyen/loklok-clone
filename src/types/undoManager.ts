@@ -1,12 +1,12 @@
 import { Action } from "./interfaces/action";
-import { Canvas } from "./interfaces/canvas";
+import { CanvasUI } from "./interfaces/canvas";
 
 export class UndoManager {
     undoStack: Action[] = []
     redoStack: Action[] = []
-    canvas: Canvas
+    canvas: CanvasUI
 
-    constructor(canvas: Canvas) {
+    constructor(canvas: CanvasUI) {
         this.canvas = canvas;
     }
 

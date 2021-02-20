@@ -1,13 +1,13 @@
 import { Action } from "./interfaces/action";
-import { Canvas } from "./interfaces/canvas";
+import { CanvasUI } from "./interfaces/canvas";
 
 export class DrawingAction implements Action {
-    canvas: Canvas //Canvas to be drawn on
+    canvas: CanvasUI //Canvas to be drawn on
     points: [number, number][] = [] //All points that make up the drawing
     strokeStyle: string;
     lineWidth: number;
 
-    constructor(strokeStyle: string, lineWidth: number, canvas: Canvas){
+    constructor(strokeStyle: string, lineWidth: number, canvas: CanvasUI){
         this.canvas = canvas
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;
@@ -31,11 +31,11 @@ export class DrawingAction implements Action {
 }
 
 export class ErasingAction implements Action {
-    canvas: Canvas //Canvas to be drawn on
+    canvas: CanvasUI //Canvas to be drawn on
     points: [number, number][] = [] //All points that make up the drawing
     lineWidth: number;
 
-    constructor(lineWidth: number, canvas: Canvas){
+    constructor(lineWidth: number, canvas: CanvasUI){
         this.canvas = canvas
         this.lineWidth = lineWidth;
     }

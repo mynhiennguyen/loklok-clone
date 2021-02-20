@@ -14,7 +14,7 @@
 import { defineComponent } from "vue";
 import { Action } from "../types/interfaces/action";
 import { ActionHandler } from "../types/actionHandler";
-import { Canvas } from "@/types/interfaces/canvas";
+import { CanvasUI } from "@/types/interfaces/canvas";
 import { Canvas2D } from "@/types/canvas2D";
 import { UndoManager } from "@/types/undoManager";
 
@@ -24,10 +24,9 @@ export default defineComponent({
 
   data() {
     return {
-      canvas: null as Canvas,
+      canvas: null as CanvasUI,
       undoManager: null as UndoManager,
       actionHandler: null as ActionHandler,
-      touchPointCache: [] as PointerEvent[],
     };
   },
   mounted(): void {
@@ -35,7 +34,6 @@ export default defineComponent({
     this.undoManager = this.initUndoManager(this.canvas);
     this.actionHandler = this.initActionHandler(this.canvas);
 
-    this.resizeCanvas(); //TODO: move to initCanvas
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
@@ -60,58 +58,27 @@ export default defineComponent({
       }
     },
     handlePointerDown(ev: PointerEvent) {
-      ev.preventDefault();
-      
-      if (ev.pointerType == "touch") {
-        this.touchPointCache.push(ev);
-      }
-      if (this.touchPointCache.length == 2) {
-        //if two touchpoints
-        //start erasing action
-        //new erasing action
-        //lineWidth
-        this.actionHandler.startErasing(ev, this.touchPointCache);
-      }
-      else {
-        this.actionHandler.beginDrawing(ev);
-      }
+      this.actionHandler.startNewAction(ev);
     },
     handlePointerMove(ev: PointerEvent) {
-      ev.preventDefault();
-      if (this.touchPointCache.length == 2) {
-        //TODO: Erase-mode
-        document.getElementById("toolbar").style.backgroundColor = "blue";
-        this.actionHandler.erase(ev, this.touchPointCache);
-      } else {
-        this.actionHandler.draw(ev);
-      }
+      this.actionHandler.continueAction(ev);
     },
     handlePointerUp(ev: PointerEvent) {
-      ev.preventDefault();
-
-      const finishedAction: Action = this.actionHandler.stopDrawing(ev);
+      const finishedAction: Action = this.actionHandler.endAction(ev);
       this.undoManager.push(finishedAction);
-
-      if (ev.pointerType == "touch") {
-        //remove from cache
-        this.touchPointCache = this.touchPointCache.filter(x => x.pointerId !== ev.pointerId)
-      }
-      if (this.touchPointCache.length <= 1) {
-        //TODO: Erase-mode done
-        document.getElementById("toolbar").style.backgroundColor = "sandybrown";
-      }
     },
-    initCanvas(): Canvas {
+    initCanvas(): CanvasUI {
       const canvas: HTMLElement = document.getElementById("canvas");
       const context: CanvasRenderingContext2D = (canvas as HTMLCanvasElement).getContext(
         "2d"
       );
+      this.resizeCanvas(); //sets height and width of canvas
       return new Canvas2D(context);
     },
-    initUndoManager(canvas: Canvas): UndoManager {
+    initUndoManager(canvas: CanvasUI): UndoManager {
       return new UndoManager(canvas);
     },
-    initActionHandler(canvas: Canvas): ActionHandler {
+    initActionHandler(canvas: CanvasUI): ActionHandler {
       return new ActionHandler(canvas);
     },
   },

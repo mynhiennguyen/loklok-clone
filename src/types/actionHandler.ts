@@ -1,16 +1,57 @@
 import { DrawingAction, ErasingAction } from "./drawingAction";
 import { Action } from "./interfaces/action";
-import { Canvas } from "./interfaces/canvas";
+import { CanvasUI } from "./interfaces/canvas";
 
 export class ActionHandler {
-  canvas: Canvas;
+  canvas: CanvasUI;
   isActionActive = false;
   currentAction: Action = null;
   x = 0;
   y = 0;
+  touchPointCache: PointerEvent[] = [];
 
-  constructor(canvas: Canvas) {
+  constructor(canvas: CanvasUI) {
     this.canvas = canvas;
+  }
+
+  startNewAction(e: PointerEvent): void {
+    e.preventDefault();
+      
+      if (e.pointerType == "touch") {
+        this.touchPointCache.push(e);
+      }
+      if (this.touchPointCache.length == 2) {
+        this.startErasing(e, this.touchPointCache);
+      }
+      else {
+        this.beginDrawing(e);
+      }
+  }
+
+  continueAction(e: PointerEvent): void {
+    e.preventDefault();
+    if (this.touchPointCache.length == 2) {
+      //TODO: Erase-mode
+      document.getElementById("toolbar").style.backgroundColor = "blue";
+      this.erase(e, this.touchPointCache);
+    } else {
+      this.draw(e);
+    }
+  }
+
+  endAction(e: PointerEvent): Action {
+    e.preventDefault();
+
+    if (e.pointerType == "touch") {
+      //remove from cache
+      this.touchPointCache = this.touchPointCache.filter(x => x.pointerId !== e.pointerId)
+    }
+    if (this.touchPointCache.length <= 1) {
+      //TODO: Erase-mode done
+      document.getElementById("toolbar").style.backgroundColor = "sandybrown";
+    }
+
+    return this.stopDrawing(e);
   }
 
   beginDrawing(e: PointerEvent): void {
