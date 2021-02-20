@@ -27,7 +27,7 @@ export default defineComponent({
       canvas: null as Canvas,
       undoManager: null as UndoManager,
       actionHandler: null as ActionHandler,
-      touchPointCache: [] as number[],
+      touchPointCache: [] as PointerEvent[],
     };
   },
   mounted(): void {
@@ -35,7 +35,7 @@ export default defineComponent({
     this.undoManager = this.initUndoManager(this.canvas);
     this.actionHandler = this.initActionHandler(this.canvas);
 
-    this.resizeCanvas();
+    this.resizeCanvas(); //TODO: move to initCanvas
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
@@ -61,16 +61,27 @@ export default defineComponent({
     },
     handlePointerDown(ev: PointerEvent) {
       ev.preventDefault();
-      this.actionHandler.beginDrawing(ev);
+      
       if (ev.pointerType == "touch") {
-        this.touchPointCache.push(ev.pointerId);
+        this.touchPointCache.push(ev);
+      }
+      if (this.touchPointCache.length == 2) {
+        //if two touchpoints
+        //start erasing action
+        //new erasing action
+        //lineWidth
+        this.actionHandler.startErasing(ev, this.touchPointCache);
+      }
+      else {
+        this.actionHandler.beginDrawing(ev);
       }
     },
     handlePointerMove(ev: PointerEvent) {
       ev.preventDefault();
-      if (this.touchPointCache.length >= 2) {
+      if (this.touchPointCache.length == 2) {
         //TODO: Erase-mode
         document.getElementById("toolbar").style.backgroundColor = "blue";
+        this.actionHandler.erase(ev, this.touchPointCache);
       } else {
         this.actionHandler.draw(ev);
       }
@@ -83,8 +94,7 @@ export default defineComponent({
 
       if (ev.pointerType == "touch") {
         //remove from cache
-        const index = this.touchPointCache.indexOf(ev.pointerId);
-        this.touchPointCache.splice(index, 1);
+        this.touchPointCache = this.touchPointCache.filter(x => x.pointerId !== ev.pointerId)
       }
       if (this.touchPointCache.length <= 1) {
         //TODO: Erase-mode done
@@ -98,10 +108,10 @@ export default defineComponent({
       );
       return new Canvas2D(context);
     },
-    initUndoManager(canvas: Canvas): UndoManager{
+    initUndoManager(canvas: Canvas): UndoManager {
       return new UndoManager(canvas);
     },
-    initActionHandler(canvas: Canvas): ActionHandler{
+    initActionHandler(canvas: Canvas): ActionHandler {
       return new ActionHandler(canvas);
     },
   },
