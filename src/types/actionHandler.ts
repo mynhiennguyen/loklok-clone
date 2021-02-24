@@ -16,22 +16,21 @@ export class ActionHandler {
 
   startNewAction(e: PointerEvent): void {
     e.preventDefault();
-      
-      if (e.pointerType == "touch") {
-        this.touchPointCache.push(e);
-      }
-      if (this.touchPointCache.length == 2) {
-        this.startErasing(e, this.touchPointCache);
-      }
-      else {
-        this.beginDrawing(e);
-      }
+
+    if (e.pointerType == "touch") {
+      this.touchPointCache.push(e);
+    }
+    if (this.touchPointCache.length == 2) {
+      this.startErasing(e, this.touchPointCache);
+    }
+    else {
+      this.beginDrawing(e);
+    }
   }
 
   continueAction(e: PointerEvent): void {
     e.preventDefault();
     if (this.touchPointCache.length == 2) {
-      //TODO: Erase-mode
       document.getElementById("toolbar").style.backgroundColor = "blue";
       this.erase(e, this.touchPointCache);
     } else {
@@ -47,14 +46,13 @@ export class ActionHandler {
       this.touchPointCache = this.touchPointCache.filter(x => x.pointerId !== e.pointerId)
     }
     if (this.touchPointCache.length <= 1) {
-      //TODO: Erase-mode done
       document.getElementById("toolbar").style.backgroundColor = "sandybrown";
     }
 
     return this.stopDrawing(e);
   }
 
-  beginDrawing(e: PointerEvent): void {
+  private beginDrawing(e: PointerEvent): void {
     this.isActionActive = true;
     this.x = e.offsetX;
     this.y = e.offsetY;
@@ -64,7 +62,7 @@ export class ActionHandler {
     }
   }
 
-  draw(e: PointerEvent): void {
+  private draw(e: PointerEvent): void {
     if (this.isActionActive && this.currentAction !== null) {
       //executes drawing and records all points
       this.currentAction.recordAndExecute(
@@ -78,7 +76,7 @@ export class ActionHandler {
     }
   }
 
-  stopDrawing(e: PointerEvent): Action {
+  private stopDrawing(e: PointerEvent): Action {
     let finishedAction: Action = null;
     if (this.isActionActive && this.currentAction !== null) {
       this.currentAction.recordAndExecute(
@@ -94,18 +92,18 @@ export class ActionHandler {
     return finishedAction;
   }
 
-  startErasing(e: PointerEvent, tpCache: PointerEvent[]): void {
+  private startErasing(e: PointerEvent, tpCache: PointerEvent[]): void {
     this.isActionActive = true;
     const point1 = tpCache[0];
     const point2 = tpCache[1];
 
-    this.x = (point1.offsetX + point2.offsetX) / 2; 
+    this.x = (point1.offsetX + point2.offsetX) / 2;
     this.y = (point1.offsetY + point2.offsetY) / 2;
-    
+
     this.currentAction = new ErasingAction(this.calculateLineWidth(point1), this.canvas);
   }
 
-  erase(e: PointerEvent, tpCache: PointerEvent[]): void {
+  private erase(e: PointerEvent, tpCache: PointerEvent[]): void {
     if (this.isActionActive && this.currentAction !== null) {
       //executes drawing and records all points
       this.currentAction.recordAndExecute(
@@ -120,7 +118,7 @@ export class ActionHandler {
     }
   }
 
-  private calculateLineWidth(point1): number{
+  private calculateLineWidth(point1: PointerEvent): number {
     //linewidth
     const BUFFER = 5;
     const a = this.x - point1.offsetX;
