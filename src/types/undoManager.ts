@@ -11,6 +11,8 @@ export class UndoManager {
     }
 
     push(action: Action): void {
+        if(action == null) return;
+
         this.undoStack.push(action);
         this.redoStack = []; //once new Action is added, clear redoStack
     }

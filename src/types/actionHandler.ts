@@ -16,10 +16,10 @@ export class ActionHandler {
 
   startNewAction(e: PointerEvent): void {
     e.preventDefault();
-
     if (e.pointerType == "touch") {
       this.touchPointCache.push(e);
     }
+
     if (this.touchPointCache.length == 2) {
       this.startErasing(e, this.touchPointCache);
     }
@@ -119,10 +119,12 @@ export class ActionHandler {
   }
 
   private calculateLineWidth(point1: PointerEvent): number {
-    //linewidth
-    const BUFFER = 5;
-    const a = this.x - point1.offsetX;
-    const b = this.y - point1.offsetY;
-    return Math.hypot(a, b);
+    //TODO: dynamic linewidth
+    // const a = this.x - point1.offsetX;
+    // const b = this.y - point1.offsetY;
+    // console.log(Math.hypot(a, b))
+    // return Math.hypot(a, b);
+
+    return 20;
   }
 }
