@@ -58,3 +58,18 @@ export class ErasingAction implements Action {
         this.canvas.eraseLine(x1,y1,x2,y2,this.lineWidth)
     }
 }
+
+export class ClearAction implements Action {
+    canvas: CanvasUI
+
+    constructor(canvas: CanvasUI){
+        this.canvas = canvas;
+    }
+    execute(): void {
+        this.canvas.clear()
+    }
+    recordAndExecute(x1: number, y1: number, x2: number, y2: number, lineWidth?: number): void {
+        throw new Error("Method not implemented.");
+    }
+    
+}

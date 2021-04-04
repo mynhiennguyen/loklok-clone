@@ -1,6 +1,6 @@
 <template>
   <div id="app-container">
-    <ToolBar @undo="undo" @redo="redo"></ToolBar>
+    <ToolBar @undo="undo" @redo="redo" @clear="clear"></ToolBar>
     <Canvas ref="canvas"></Canvas>
   </div>
 </template>
@@ -22,6 +22,9 @@ export default defineComponent({
     },
     redo(): void {
       this.$refs.canvas.redo()
+    },
+    clear(): void {
+      this.$refs.canvas.clear()
     }
   }
 });

@@ -4,10 +4,11 @@
     <option v-for="c in LineColor.keys()" :key="c" :value="LineColor.get(c)" :style="{color: LineColor.get(c)}">{{c}}</option>
   </select>
   <select @change="changeThickness" name="thickness" id="thickness">
-    <option v-for="v in LineThickness.keys()" :key="v" :value="LineThickness.get(v)">{{v}}</option>
+    <option v-for="t in LineThickness.keys()" :key="t" :value="LineThickness.get(t)">{{t}}</option>
   </select>
   <button @click="undo">Undo</button>
   <button @click="redo">Redo</button>
+  <button @click="clear">Clear</button>
 </div>
 </template>
 
@@ -17,7 +18,7 @@ import { LineThickness, LineColor} from "../options";
 
 export default defineComponent({
     name: "ToolBar",
-    emits: ["undo", "redo"],
+    emits: ["undo", "redo", "clear"],
     data() {
       return {
         LineThickness,
@@ -30,6 +31,9 @@ export default defineComponent({
       },
       redo(): void {
         this.$emit("redo")
+      },
+      clear(): void {
+        this.$emit("clear")
       },
       changeThickness(e): void {
         this.$store.commit("changeLineThickness", e.target.value)

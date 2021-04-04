@@ -17,6 +17,7 @@ import { ActionHandler } from "../types/actionHandler";
 import { CanvasUI } from "@/types/interfaces/canvas";
 import { Canvas2D } from "@/types/canvas2D";
 import { UndoManager } from "@/types/undoManager";
+import { ClearAction } from "@/types/drawingAction";
 
 export default defineComponent({
   name: "Canvas",
@@ -47,6 +48,11 @@ export default defineComponent({
     },
     redo(): void {
       this.undoManager.redo();
+    },
+    clear(): void {
+      const clearAction: Action = new ClearAction(this.canvas);
+      clearAction.execute();
+      this.undoManager.push(clearAction);
     },
     resizeCanvas(): void {
       // look up the size the canvas is being displayed
