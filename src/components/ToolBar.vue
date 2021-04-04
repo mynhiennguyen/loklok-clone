@@ -5,7 +5,6 @@
   </select>
   <button @click="undo">Undo</button>
   <button @click="redo">Redo</button>
-  <h1>{{thickness}}</h1>
 </div>
 </template>
 
@@ -19,11 +18,6 @@ export default defineComponent({
     data() {
       return {
         LineThickness
-      }
-    },
-    computed: {
-      thickness() {
-        return this.$store.state.lineThickness
       }
     },
     methods: {
