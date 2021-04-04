@@ -1,5 +1,8 @@
 <template>
 <div id="toolbar">
+  <select @change="changeColor" name="color" id="color">
+    <option v-for="c in LineColor.keys()" :key="c" :value="LineColor.get(c)" :style="{color: LineColor.get(c)}">{{c}}</option>
+  </select>
   <select @change="changeThickness" name="thickness" id="thickness">
     <option v-for="v in LineThickness.keys()" :key="v" :value="LineThickness.get(v)">{{v}}</option>
   </select>
@@ -10,14 +13,15 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { LineThickness} from "../lines";
+import { LineThickness, LineColor} from "../options";
 
 export default defineComponent({
     name: "ToolBar",
     emits: ["undo", "redo"],
     data() {
       return {
-        LineThickness
+        LineThickness,
+        LineColor
       }
     },
     methods: {
@@ -29,6 +33,9 @@ export default defineComponent({
       },
       changeThickness(e): void {
         this.$store.commit("changeLineThickness", e.target.value)
+      },
+      changeColor(e): void {
+        this.$store.commit("changeLineColor", e.target.value)
       }
     }
     

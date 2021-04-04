@@ -1,15 +1,24 @@
 import { createStore } from 'vuex'
-import { LineThickness } from './lines';
+import { Color, LineColor, LineThickness } from './options';
 
-export type State = { lineThickness: number};
+export type State = { 
+    lineThickness: number;
+    lineColor: string;
+};
 
-const state: State = { lineThickness: LineThickness.values()[0]}
+const state: State = { 
+    lineThickness: LineThickness.values()[0],
+    lineColor: LineColor.get(Color.BLACK),
+}
 
 export const store = createStore({
     state,
     mutations: {
     changeLineThickness (state: State, thickness: number) {
-      state.lineThickness = thickness
+        state.lineThickness = thickness
+    },
+    changeLineColor(state: State, color: string){
+        state.lineColor = color
     }
   }
 })

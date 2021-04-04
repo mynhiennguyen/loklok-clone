@@ -59,7 +59,7 @@ export class ActionHandler {
     this.y = e.offsetY;
     //init new DrawingAction
     if (this.currentAction == null) {
-      this.currentAction = new DrawingAction("black", store.state.lineThickness, this.canvas);
+      this.currentAction = new DrawingAction(store.state.lineColor, store.state.lineThickness, this.canvas);
     }
   }
 
