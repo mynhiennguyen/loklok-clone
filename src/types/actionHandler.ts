@@ -1,6 +1,7 @@
 import { DrawingAction, ErasingAction } from "./drawingAction";
 import { Action } from "./interfaces/action";
 import { CanvasUI } from "./interfaces/canvas";
+import { store } from "../store";
 
 export class ActionHandler {
   canvas: CanvasUI;
@@ -58,7 +59,7 @@ export class ActionHandler {
     this.y = e.offsetY;
     //init new DrawingAction
     if (this.currentAction == null) {
-      this.currentAction = new DrawingAction("black", 10, this.canvas);
+      this.currentAction = new DrawingAction("black", store.state.lineThickness, this.canvas);
     }
   }
 

@@ -11,7 +11,8 @@
   "dependencies": {
     "@babel/preset-typescript": "^7.13.0",
     "core-js": "^3.6.5",
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vuex": "^4.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",

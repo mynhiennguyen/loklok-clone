@@ -29,6 +29,11 @@ export default defineComponent({
       actionHandler: null as ActionHandler,
     };
   },
+  computed: {
+    lineThickness(): void {
+      return this.$store.lineThickness
+    }
+  },
   mounted(): void {
     this.canvas = this.initCanvas();
     this.undoManager = this.initUndoManager(this.canvas);
