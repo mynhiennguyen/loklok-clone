@@ -1,24 +1,29 @@
 import { createStore } from 'vuex'
-import { Color, LineColor, LineThickness } from './options';
+import { Color, LineColor, LineThickness, Thickness, Tool } from './options';
 
-export type State = { 
+export type State = {
+    tool: Tool; 
     lineThickness: number;
     lineColor: string;
 };
 
-const state: State = { 
-    lineThickness: LineThickness.values()[0],
+const state: State = {
+    tool: Tool.PENCIL, 
+    lineThickness: LineThickness.get(Thickness.MEDIUM),
     lineColor: LineColor.get(Color.BLACK),
 }
 
 export const store = createStore({
     state,
     mutations: {
-    changeLineThickness (state: State, thickness: number) {
-        state.lineThickness = thickness
-    },
-    changeLineColor(state: State, color: string){
-        state.lineColor = color
-    }
+        changeTool(state: State, tool: Tool){
+            state.tool = tool
+        },
+        changeLineThickness (state: State, thickness: number) {
+            state.lineThickness = thickness
+        },
+        changeLineColor(state: State, color: string){
+            state.lineColor = color
+        }
   }
 })

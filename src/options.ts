@@ -1,3 +1,14 @@
+// Tools Options
+export enum Tool {
+    PENCIL,
+    ERASER
+}
+
+export const Tools = new Map<Tool, string>([
+    [Tool.PENCIL, "Draw"],
+    [Tool.ERASER, "Erase"],
+])
+
 // Line Thickness Options
 export enum Thickness {
     THIN = "Thin",
