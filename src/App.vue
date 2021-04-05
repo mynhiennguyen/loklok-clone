@@ -1,6 +1,6 @@
 <template>
   <div id="app-container">
-    <ToolBar @undo="undo" @redo="redo" @clear="clear"></ToolBar>
+    <ToolBar @undo="undo" @redo="redo" @clear="clear" @changeBackground="changeBackground"></ToolBar>
     <Canvas ref="canvas"></Canvas>
   </div>
 </template>
@@ -25,6 +25,9 @@ export default defineComponent({
     },
     clear(): void {
       this.$refs.canvas.clear()
+    },
+    changeBackground(file: File): void{
+      this.$refs.canvas.changeBackground(file)
     }
   }
 });

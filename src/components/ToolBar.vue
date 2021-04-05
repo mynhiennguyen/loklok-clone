@@ -12,6 +12,7 @@
   <button @click="undo">Undo</button>
   <button @click="redo">Redo</button>
   <button @click="clear">Clear</button>
+  <input @change="changeBackground" type="file" accept="image/*" id="image">
 </div>
 </template>
 
@@ -21,7 +22,7 @@ import { LineThickness, LineColor, Tools} from "../options";
 
 export default defineComponent({
     name: "ToolBar",
-    emits: ["undo", "redo", "clear"],
+    emits: ["undo", "redo", "clear", "changeBackground"],
     data() {
       return {
         Tools,
@@ -47,6 +48,9 @@ export default defineComponent({
       },
       changeColor(e): void {
         this.$store.commit("changeLineColor", e.target.value)
+      },
+      changeBackground(e): void {
+        this.$emit("changeBackground", e.target.files[0])
       }
     }
     
@@ -58,6 +62,7 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
     width: 100vw;
     height: 100px;
     background-color: sandybrown;

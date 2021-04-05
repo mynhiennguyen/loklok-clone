@@ -37,4 +37,15 @@ export class Canvas2D implements CanvasUI {
             this.ctx.canvas.height
         );
     }
+
+    changeBackground(file: File){
+        const background = new Image();
+        background.src = URL.createObjectURL(file);
+        const ctx = this.ctx;
+
+        // Make sure the image is loaded first otherwise nothing will draw.
+        background.onload = function(){
+            ctx.drawImage(background,0,0, ctx.canvas.width, ctx.canvas.height);
+    }
+    }
 }

@@ -5,6 +5,7 @@
       @pointerdown="handlePointerDown"
       @pointermove="handlePointerMove"
       @pointerup="handlePointerUp"
+      :style="{background: backgroundImage}"
     >
     </canvas>
   </div>
@@ -28,6 +29,7 @@ export default defineComponent({
       canvas: null as CanvasUI,
       undoManager: null as UndoManager,
       actionHandler: null as ActionHandler,
+      backgroundImage: 'silver'
     };
   },
   computed: {
@@ -53,6 +55,9 @@ export default defineComponent({
       const clearAction: Action = new ClearAction(this.canvas);
       clearAction.execute();
       this.undoManager.push(clearAction);
+    },
+    changeBackground(file: File): void {
+      this.canvas.changeBackground(file)
     },
     resizeCanvas(): void {
       // look up the size the canvas is being displayed
@@ -99,7 +104,6 @@ export default defineComponent({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #canvas {
-  background-color: silver;
   position: absolute;
   top: 0;
   left: 0;
