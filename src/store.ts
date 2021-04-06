@@ -9,7 +9,7 @@ export type State = {
 
 const state: State = {
     tool: Tool.PENCIL, 
-    lineThickness: LineThickness.get(Thickness.MEDIUM),
+    lineThickness: LineThickness.get(Thickness.THIN),
     lineColor: LineColor.get(Color.BLACK),
 }
 
@@ -21,6 +21,7 @@ export const store = createStore({
         },
         changeLineThickness (state: State, thickness: number) {
             state.lineThickness = thickness
+            console.log(state.lineThickness)
         },
         changeLineColor(state: State, color: string){
             state.lineColor = color
