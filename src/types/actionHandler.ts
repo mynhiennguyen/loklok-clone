@@ -2,6 +2,8 @@ import { DrawingAction, ErasingAction } from "./drawingAction";
 import { Action } from "./interfaces/action";
 import { CanvasUI } from "./interfaces/canvas";
 import { store } from "../store";
+import { Tool } from "@/options";
+import { DrawingState, ErasingState, InputState, TouchErasingState } from "./InputState";
 
 export class ActionHandler {
   canvas: CanvasUI;
@@ -10,9 +12,11 @@ export class ActionHandler {
   x = 0;
   y = 0;
   touchPointCache: PointerEvent[] = [];
+  inputState: InputState = null;
 
   constructor(canvas: CanvasUI) {
     this.canvas = canvas;
+    this.inputState = new DrawingState(this.canvas);
   }
 
   startNewAction(e: PointerEvent): void {
@@ -20,23 +24,23 @@ export class ActionHandler {
     if (e.pointerType == "touch") {
       this.touchPointCache.push(e);
     }
-
+    if(store.state.tool == Tool.ERASER){
+      this.inputState = new ErasingState(this.canvas)
+    }
+    else if(store.state.tool == Tool.PENCIL){
+      this.inputState = new DrawingState(this.canvas)
+    }
     if (this.touchPointCache.length == 2) {
-      this.startErasing(e, this.touchPointCache);
+      document.getElementById("toolbar").style.backgroundColor = "blue";
+      this.inputState = new TouchErasingState(this.canvas)
     }
-    else {
-      this.beginDrawing(e);
-    }
+
+    this.inputState.startAction(e, this.touchPointCache)
   }
 
   continueAction(e: PointerEvent): void {
     e.preventDefault();
-    if (this.touchPointCache.length == 2) {
-      document.getElementById("toolbar").style.backgroundColor = "blue";
-      this.erase(e, this.touchPointCache);
-    } else {
-      this.draw(e);
-    }
+    this.inputState.continueAction(e, this.touchPointCache)
   }
 
   endAction(e: PointerEvent): Action {
@@ -49,83 +53,7 @@ export class ActionHandler {
     if (this.touchPointCache.length <= 1) {
       document.getElementById("toolbar").style.backgroundColor = "sandybrown";
     }
-
-    return this.stopDrawing(e);
+    return this.inputState.endAction(e, this.touchPointCache)
   }
 
-  private beginDrawing(e: PointerEvent): void {
-    this.isActionActive = true;
-    this.x = e.offsetX;
-    this.y = e.offsetY;
-    //init new DrawingAction
-    if (this.currentAction == null) {
-      this.currentAction = new DrawingAction(store.state.lineColor, store.state.lineThickness, this.canvas);
-    }
-  }
-
-  private draw(e: PointerEvent): void {
-    if (this.isActionActive && this.currentAction !== null) {
-      //executes drawing and records all points
-      this.currentAction.recordAndExecute(
-        this.x,
-        this.y,
-        e.offsetX,
-        e.offsetY
-      );
-      this.x = e.offsetX;
-      this.y = e.offsetY;
-    }
-  }
-
-  private stopDrawing(e: PointerEvent): Action {
-    let finishedAction: Action = null;
-    if (this.isActionActive && this.currentAction !== null) {
-      this.currentAction.recordAndExecute(
-        this.x,
-        this.y,
-        e.offsetX,
-        e.offsetY
-      );
-      finishedAction = this.currentAction;
-      this.currentAction = null;
-      this.isActionActive = false;
-    }
-    return finishedAction;
-  }
-
-  private startErasing(e: PointerEvent, tpCache: PointerEvent[]): void {
-    this.isActionActive = true;
-    const point1 = tpCache[0];
-    const point2 = tpCache[1];
-
-    this.x = (point1.offsetX + point2.offsetX) / 2;
-    this.y = (point1.offsetY + point2.offsetY) / 2;
-
-    this.currentAction = new ErasingAction(this.calculateLineWidth(point1), this.canvas);
-  }
-
-  private erase(e: PointerEvent, tpCache: PointerEvent[]): void {
-    if (this.isActionActive && this.currentAction !== null) {
-      //executes drawing and records all points
-      this.currentAction.recordAndExecute(
-        this.x,
-        this.y,
-        e.offsetX,
-        e.offsetY,
-        this.calculateLineWidth(tpCache[0])
-      );
-      this.x = e.offsetX;
-      this.y = e.offsetY;
-    }
-  }
-
-  private calculateLineWidth(point1: PointerEvent): number {
-    //TODO: dynamic linewidth
-    // const a = this.x - point1.offsetX;
-    // const b = this.y - point1.offsetY;
-    // console.log(Math.hypot(a, b))
-    // return Math.hypot(a, b);
-
-    return 20;
-  }
 }
