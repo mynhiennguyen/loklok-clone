@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-import { Color, LineColor, LineThickness, Thickness, Tool } from './options';
+import { Color, Width, Tool } from './options';
 
 export type State = {
     tool: Tool; 
@@ -9,8 +9,8 @@ export type State = {
 
 const state: State = {
     tool: Tool.PENCIL, 
-    lineThickness: LineThickness.get(Thickness.THIN),
-    lineColor: LineColor.get(Color.BLACK),
+    lineThickness: Width.THIN,
+    lineColor: Color.BLACK,
 }
 
 export const store = createStore({
@@ -19,7 +19,7 @@ export const store = createStore({
         changeTool(state: State, tool: Tool){
             state.tool = tool
         },
-        changeLineThickness (state: State, thickness: number) {
+        changeLineWidth (state: State, thickness: number) {
             state.lineThickness = thickness
             console.log(state.lineThickness)
         },

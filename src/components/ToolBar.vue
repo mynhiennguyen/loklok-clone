@@ -1,14 +1,8 @@
 <template>
 <div id="toolbar">
-  <select @change="changeTool" name="tool" id="tool">
-    <option v-for="tool in Tools.keys()" :key="tool" :value="tool">{{Tools.get(tool)}}</option>
-  </select>
-  <select @change="changeColor" name="color" id="color">
-    <option v-for="c in LineColor.keys()" :key="c" :value="LineColor.get(c)" :style="{color: LineColor.get(c)}">{{c}}</option>
-  </select>
-  <select @change="changeThickness" name="thickness" id="thickness">
-    <option v-for="t in LineThickness.keys()" :key="t" :value="LineThickness.get(t)">{{t}}</option>
-  </select>
+  <tool-bar-dropdown :items="tools"></tool-bar-dropdown>
+  <tool-bar-dropdown :items="colors"></tool-bar-dropdown>
+  <tool-bar-dropdown :items="width"></tool-bar-dropdown>
   <button @click="undo">Undo</button>
   <button @click="redo">Redo</button>
   <button @click="clear">Clear</button>
@@ -18,16 +12,38 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { LineThickness, LineColor, Tools} from "../options";
+import { Tool, Color, Width} from "../options";
+import ToolBarDropdown, { DropdownItem } from "./ToolBarDropdown.vue";
 
 export default defineComponent({
+  components: { ToolBarDropdown },
     name: "ToolBar",
     emits: ["undo", "redo", "clear", "changeBackground"],
     data() {
       return {
-        Tools,
-        LineThickness,
-        LineColor
+        width: [
+          new DropdownItem({'backgroundImage': 'url(' + require('../assets/icons/thin.svg') + ')'}, Width.THIN, this.changeWidth),
+          new DropdownItem({'backgroundImage': 'url(' + require('../assets/icons/medium.svg') + ')'}, Width.MEDIUM, this.changeWidth),
+          new DropdownItem({'backgroundImage': 'url(' + require('../assets/icons/thick.svg') + ')'}, Width.THICK, this.changeWidth),
+        ],
+        colors: [
+          new DropdownItem({'backgroundColor': Color.BLACK}, Color.BLACK, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.GREY}, Color.GREY, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.WHITE}, Color.WHITE, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.RED_MEDIUM}, Color.RED_MEDIUM, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.RED_DARK}, Color.RED_DARK, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.ORANGE}, Color.ORANGE, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.YELLOW}, Color.YELLOW, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.GREEN_MEDIUM}, Color.GREEN_MEDIUM, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.GREEN_DARK}, Color.GREEN_DARK, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.BLUE_MEDIUM}, Color.BLUE_MEDIUM, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.BLUE_DARK}, Color.BLUE_DARK, this.changeColor),
+          new DropdownItem({'backgroundColor': Color.PURPLE}, Color.PURPLE, this.changeColor),
+        ],
+        tools: [
+          new DropdownItem({'backgroundImage': 'url(' + require('../assets/icons/pencil.svg') + ')'}, Tool.PENCIL, this.changeTool),
+          new DropdownItem({'backgroundImage': 'url(' + require('../assets/icons/eraser.svg') + ')'}, Tool.ERASER, this.changeTool),
+        ]
       }
     },
     methods: {
@@ -41,13 +57,13 @@ export default defineComponent({
         this.$emit("clear")
       },
       changeTool(e): void {
-        this.$store.commit("changeTool", e.target.value)
+        this.$store.commit("changeTool", e)
       },
-      changeThickness(e): void {
-        this.$store.commit("changeLineThickness", e.target.value)
+      changeWidth(width: number): void {
+        this.$store.commit("changeLineWidth", width)
       },
       changeColor(e): void {
-        this.$store.commit("changeLineColor", e.target.value)
+        this.$store.commit("changeLineColor", e)
       },
       changeBackground(e): void {
         this.$emit("changeBackground", e.target.files[0])
