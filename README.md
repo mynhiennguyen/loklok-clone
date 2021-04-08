@@ -35,6 +35,22 @@ Impressions and more detailed descriptions about the original LokLok app can be 
 * https://androidappsforme.com/loklok-app-review/
 * https://www.youtube.com/watch?v=patgOkFHOgU
 
+## Status 9.4.2021
+### Topics and features implemented
+* deployment on Netfliy: https://loklok-clone.netlify.app/
+* feature: selecting drawing or erasing tool, color and line-width (global state management with Vuex)
+* feature: drawing or erasing via mouse-input or touch-input
+* feature: multi-touch-input for erasing (2 fingers)
+* feature: clearing canvas
+* feature: setting a background picture (work in progress)
+* feature: undo / redo functionality (still many bugs)
+* styling: dropdown-lists and icons
+* JEST setup and first test
+
+### Next steps
+* Start with Back-end / Collaboration feature
+* Frontend: https://trello.com/b/fdcYQZvQ/loklok-clone
+
 ## Requirements for the clone
 
 | Priority (must-have \| nice-to-have) | Description                                                                                                                                  |
