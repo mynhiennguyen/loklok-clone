@@ -1,4 +1,3 @@
-import { DrawingAction, ErasingAction } from "./drawingAction";
 import { Action } from "./interfaces/action";
 import { CanvasUI } from "./interfaces/canvas";
 import { store } from "../store";
