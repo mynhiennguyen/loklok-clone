@@ -1,7 +1,7 @@
 <template>
     <div class="dropdown">
         <div class="dropdown__item" @click="showDropdown = !showDropdown">
-            <div class="dropdown__icon" :style="selectedItem.icon"/>
+            <div class="dropdown__icon dropdown__icon--first" :style="selectedItem.icon"/>
         </div>
         <div v-if="showDropdown" class="dropdown__content" :class="items.length > 3 ? 'dropdown__content--large': null">
             <a v-for="item, i in items" class="dropdown__item" :key="i" @click="changeSelectedItem(item)" :value="item.value">
@@ -54,28 +54,43 @@ export default defineComponent({
     flex-direction: column;
 }
 
-.dropdown__icon {
+.dropdown__item {
     height: 8vw;
     width: 8vw;
+    margin: 3px;
+}
+
+.dropdown__icon {
+    height: 100%;
+    width: 100%;
     background-size: contain;
 }
 
+.dropdown__content {
+    display:flex;
+    flex-direction: column;
+}
+
 .dropdown__content--large {
-    max-width: 24vw;
+    max-width: 30vw;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
 
 @media screen and (min-width: 768px){
-    .dropdown__icon {
+    .dropdown__item {
         height: 3vw;
         width: 3vw;
         }
     
     .dropdown__content--large {
-        max-width: 9vw;
+        max-width: 13vw;
         }
+}
+
+.dropdown__icon--first {
+    padding: 3px;
 }
 
 </style>

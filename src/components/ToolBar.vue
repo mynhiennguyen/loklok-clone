@@ -87,4 +87,8 @@ export default defineComponent({
     left: 0;
     z-index: 100;
 }
+
+#toolbar > * {
+  margin: 1vw;
+}
 </style>
