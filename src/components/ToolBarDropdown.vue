@@ -50,8 +50,7 @@ export default defineComponent({
 
 <style scoped>
 .dropdown {
-    display: flex;
-    flex-direction: column;
+    position: relative;
 }
 
 .dropdown__item {
@@ -69,10 +68,11 @@ export default defineComponent({
 .dropdown__content {
     display:flex;
     flex-direction: column;
+    position: absolute;
 }
 
 .dropdown__content--large {
-    max-width: 30vw;
+    width: 30vw;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -87,10 +87,6 @@ export default defineComponent({
     .dropdown__content--large {
         max-width: 13vw;
         }
-}
-
-.dropdown__icon--first {
-    padding: 3px;
 }
 
 </style>
