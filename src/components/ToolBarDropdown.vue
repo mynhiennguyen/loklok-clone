@@ -1,7 +1,7 @@
 <template>
     <div class="dropdown">
         <div class="dropdown__item" :class="showDropdown ? 'dropdown__item--disabled' : null" @click="showDropdown = !showDropdown">
-            <div class="dropdown__icon dropdown__icon--first" :style="selectedItem.icon"/>
+            <div class="dropdown__icon dropdown__icon--first" :class="rounded ? 'dropdown__icon--round' : null" :style="selectedItem.icon"/>
         </div>
         <div v-if="showDropdown" class="dropdown__content" :class="items.length > 3 ? 'dropdown__content--large': null">
             <a v-for="item, i in items" class="dropdown__item" :key="i" @click="changeSelectedItem(item)" :value="item.value">
@@ -30,7 +30,8 @@ export class DropdownItem {
 export default defineComponent({
     name: "DropDown",
     props: {
-        items: Object as PropType<DropdownItem[]>
+        items: Object as PropType<DropdownItem[]>,
+        rounded: Boolean
     },
     data() {
         return {
@@ -69,6 +70,10 @@ export default defineComponent({
     background-size: contain;
 }
 
+.dropdown__icon--round {
+    border-radius: 50%;
+}
+
 .dropdown__content {
     display:flex;
     flex-direction: column;
@@ -83,6 +88,10 @@ export default defineComponent({
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+
+.dropdown__content--large  .dropdown__icon{
+    border-radius: 50%;
 }
 
 @media screen and (min-width: 768px){

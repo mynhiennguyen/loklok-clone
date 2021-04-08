@@ -30,7 +30,6 @@ export class ActionHandler {
       this.inputState = new DrawingState(this.canvas)
     }
     if (this.touchPointCache.length == 2) {
-      document.getElementById("toolbar").style.backgroundColor = "blue";
       this.inputState = new TouchErasingState(this.canvas)
     }
 
@@ -48,9 +47,6 @@ export class ActionHandler {
     if (e.pointerType == "touch") {
       //remove from cache
       this.touchPointCache = this.touchPointCache.filter(x => x.pointerId !== e.pointerId)
-    }
-    if (this.touchPointCache.length <= 1) {
-      document.getElementById("toolbar").style.backgroundColor = "sandybrown";
     }
     return this.inputState.endAction(e, this.touchPointCache)
   }

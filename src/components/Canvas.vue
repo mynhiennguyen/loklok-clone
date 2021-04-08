@@ -114,5 +114,6 @@ export default defineComponent({
   overflow-x: hidden;
   overflow-y: hidden;
   touch-action: none;
+  background-size: contain;
 }
 </style>

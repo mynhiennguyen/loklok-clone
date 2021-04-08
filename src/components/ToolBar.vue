@@ -1,7 +1,7 @@
 <template>
 <div id="toolbar">
   <tool-bar-dropdown :items="tools"></tool-bar-dropdown>
-  <tool-bar-dropdown :items="colors"></tool-bar-dropdown>
+  <tool-bar-dropdown :items="colors" rounded></tool-bar-dropdown>
   <tool-bar-dropdown :items="width"></tool-bar-dropdown>
   <button @click="undo">Undo</button>
   <button @click="redo">Redo</button>
@@ -81,7 +81,7 @@ export default defineComponent({
     flex-wrap: wrap;
     width: 100vw;
     height: 100px;
-    background-color: sandybrown;
+    background-color: rgba(244, 164, 96, 0.8);
     position: absolute;
     top: 0;
     left: 0;
@@ -91,4 +91,5 @@ export default defineComponent({
 #toolbar > * {
   margin: 1vw;
 }
+
 </style>
