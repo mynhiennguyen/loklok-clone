@@ -1,6 +1,6 @@
 <template>
     <div class="dropdown">
-        <div class="dropdown__item" @click="showDropdown = !showDropdown">
+        <div class="dropdown__item" :class="showDropdown ? 'dropdown__item--disabled' : null" @click="showDropdown = !showDropdown">
             <div class="dropdown__icon dropdown__icon--first" :style="selectedItem.icon"/>
         </div>
         <div v-if="showDropdown" class="dropdown__content" :class="items.length > 3 ? 'dropdown__content--large': null">
@@ -59,6 +59,10 @@ export default defineComponent({
     margin: 3px;
 }
 
+.dropdown__item--disabled {
+    background-color: rgba(0, 0, 0, 0.3)
+}
+
 .dropdown__icon {
     height: 100%;
     width: 100%;
@@ -68,7 +72,10 @@ export default defineComponent({
 .dropdown__content {
     display:flex;
     flex-direction: column;
+    justify-content: space-evenly;
     position: absolute;
+    background-color: rgba(241, 241, 241, 0.8)
+    
 }
 
 .dropdown__content--large {
