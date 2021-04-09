@@ -3,10 +3,18 @@
   <tool-bar-dropdown :items="tools"></tool-bar-dropdown>
   <tool-bar-dropdown :items="colors" rounded></tool-bar-dropdown>
   <tool-bar-dropdown :items="width"></tool-bar-dropdown>
-  <button @click="undo">Undo</button>
-  <button @click="redo">Redo</button>
-  <button @click="clear">Clear</button>
-  <input @change="changeBackground" type="file" accept="image/*" id="image">
+  <div class="toolbar__button" @click="undo">
+    <img class="toolbar__icon" :src="undoIcon" /></div>
+  <div class="toolbar__button" @click="redo">
+    <img class="toolbar__icon" :src="redoIcon" /></div>
+  <div class="toolbar__button" @click="clear">
+    <img class="toolbar__icon" :src="clearIcon" /></div>
+  <div class="toolbar__button">
+    <label for="image">
+      <img class="toolbar__icon" :src="cameraIcon"/>
+    </label>
+    <input @change="changeBackground" type="file" accept="image/*" id="image">
+  </div>
 </div>
 </template>
 
@@ -43,7 +51,11 @@ export default defineComponent({
         tools: [
           new DropdownItem({'backgroundImage': 'url(' + require('../assets/icons/pencil.svg') + ')'}, Tool.PENCIL, this.changeTool),
           new DropdownItem({'backgroundImage': 'url(' + require('../assets/icons/eraser.svg') + ')'}, Tool.ERASER, this.changeTool),
-        ]
+        ],
+        undoIcon: require('../assets/icons/undo.svg'),
+        redoIcon: require('../assets/icons/redo.svg'),
+        clearIcon: require('../assets/icons/delete.svg'),
+        cameraIcon: require('../assets/icons/photo-camera.svg'),
       }
     },
     methods: {
@@ -90,6 +102,35 @@ export default defineComponent({
 
 #toolbar > * {
   margin: 1vw;
+}
+
+.toolbar__button {
+  background: none;
+  height: 8vw;
+  width: 8vw;
+  border: none;
+  cursor: pointer;
+}
+
+label {
+  cursor: pointer;
+}
+
+.toolbar__button > input{
+  display: none;
+}
+
+.toolbar__icon {
+  height: 100%;
+  width: 100%;
+}
+
+@media screen and (min-width: 768px){
+    .toolbar__button {
+        height: 3vw;
+        width: 3vw;
+        }
+    
 }
 
 </style>
