@@ -1,3 +1,6 @@
+const express = require('express');
+const { Server } = require('ws');
+
 const PORT = process.env.PORT || 3000;
 const INDEX = '/index.html';
 
@@ -7,8 +10,6 @@ const server = express()
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // create WebSocket server
-const { Server } = require('ws');
-
 const wss = new Server({ server });
 
 // handle connections
