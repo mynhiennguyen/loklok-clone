@@ -1,0 +1,1 @@
+web: cd be && npm start
