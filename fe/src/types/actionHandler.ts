@@ -12,10 +12,12 @@ export class ActionHandler {
   y = 0;
   touchPointCache: PointerEvent[] = [];
   inputState: InputState = null;
+  ws: WebSocket = null;
 
-  constructor(canvas: CanvasUI) {
+  constructor(canvas: CanvasUI, ws: WebSocket) {
     this.canvas = canvas;
-    this.inputState = new DrawingState(this.canvas);
+    this.ws = ws;
+    this.inputState = new DrawingState(this.canvas, this.ws);
   }
 
   startNewAction(e: PointerEvent): void {
@@ -24,13 +26,13 @@ export class ActionHandler {
       this.touchPointCache.push(e);
     }
     if(store.state.tool == Tool.ERASER){
-      this.inputState = new ErasingState(this.canvas)
+      this.inputState = new ErasingState(this.canvas, this.ws)
     }
     else if(store.state.tool == Tool.PENCIL){
-      this.inputState = new DrawingState(this.canvas)
+      this.inputState = new DrawingState(this.canvas, this.ws)
     }
     if (this.touchPointCache.length == 2) {
-      this.inputState = new TouchErasingState(this.canvas)
+      this.inputState = new TouchErasingState(this.canvas, this.ws)
     }
 
     this.inputState.startAction(e, this.touchPointCache)

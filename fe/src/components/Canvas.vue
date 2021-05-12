@@ -15,10 +15,10 @@
 import { defineComponent } from "vue";
 import { Action } from "../types/interfaces/action";
 import { ActionHandler } from "../types/actionHandler";
-import { CanvasUI } from "@/types/interfaces/canvas";
-import { Canvas2D } from "@/types/canvas2D";
-import { UndoManager } from "@/types/undoManager";
-import { ClearAction } from "@/types/drawingAction";
+import { CanvasUI } from "../types/interfaces/canvas";
+import { Canvas2D } from "../types/canvas2D";
+import { UndoManager } from "../types/undoManager";
+import { ClearAction } from "../types/action";
 
 export default defineComponent({
   name: "Canvas",
@@ -29,7 +29,8 @@ export default defineComponent({
       canvas: null as CanvasUI,
       undoManager: null as UndoManager,
       actionHandler: null as ActionHandler,
-      backgroundImage: 'silver'
+      backgroundImage: 'silver',
+      ws: null as WebSocket
     };
   },
   computed: {
@@ -38,9 +39,16 @@ export default defineComponent({
     }
   },
   mounted(): void {
+    this.ws = new WebSocket('ws://loklok-clone.herokuapp.com:3000')
+
     this.canvas = this.initCanvas();
     this.undoManager = this.initUndoManager(this.canvas);
-    this.actionHandler = this.initActionHandler(this.canvas);
+    this.actionHandler = this.initActionHandler(this.canvas, this.ws);
+
+    this.ws.onmessage = (msg) => {
+      const pathObj = msg.data.split(',')
+      this.canvas.drawLine(pathObj[0], pathObj[1], pathObj[2], pathObj[3], pathObj[4], pathObj[5])
+    }
 
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
@@ -52,7 +60,7 @@ export default defineComponent({
       this.undoManager.redo();
     },
     clear(): void {
-      const clearAction: Action = new ClearAction(this.canvas);
+      const clearAction: Action = new ClearAction(this.canvas, this.ws);
       clearAction.execute();
       this.undoManager.push(clearAction);
     },
@@ -94,8 +102,8 @@ export default defineComponent({
     initUndoManager(canvas: CanvasUI): UndoManager {
       return new UndoManager(canvas);
     },
-    initActionHandler(canvas: CanvasUI): ActionHandler {
-      return new ActionHandler(canvas);
+    initActionHandler(canvas: CanvasUI, ws: WebSocket): ActionHandler {
+      return new ActionHandler(canvas, ws);
     },
   },
 });

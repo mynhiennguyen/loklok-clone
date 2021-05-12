@@ -1,5 +1,5 @@
 import { store } from "@/store";
-import { DrawingAction, ErasingAction } from "./drawingAction";
+import { DrawingAction, ErasingAction } from "./action";
 import { Action } from "./interfaces/action";
 import { CanvasUI } from "./interfaces/canvas";
 
@@ -9,9 +9,11 @@ export abstract class InputState {
     currentAction: Action = null;
     x = 0;
     y = 0;
+    ws: WebSocket = null
 
-    constructor(canvas: CanvasUI) {
+    constructor(canvas: CanvasUI, ws: WebSocket) {
         this.canvas = canvas
+        this.ws = ws
     }
 
     abstract startAction(e: PointerEvent, tpCache?: PointerEvent[]): void
@@ -26,7 +28,7 @@ export class DrawingState extends InputState {
         this.y = e.offsetY;
         //init new DrawingAction
         if (this.currentAction == null) {
-            this.currentAction = new DrawingAction(store.state.lineColor, store.state.lineThickness, this.canvas);
+            this.currentAction = new DrawingAction(store.state.lineColor, store.state.lineThickness, this.canvas, this.ws);
         }
     }
     continueAction(e: PointerEvent): void {
@@ -69,7 +71,7 @@ export class ErasingState extends DrawingState {
         this.y = e.offsetY;
         //init new DrawingAction
         if (this.currentAction == null) {
-            this.currentAction = new ErasingAction(store.state.lineThickness, this.canvas);
+            this.currentAction = new ErasingAction(store.state.lineThickness, this.canvas, this.ws);
         }
     }
 }
@@ -84,7 +86,7 @@ export class TouchErasingState extends InputState {
     this.x = (point1.offsetX + point2.offsetX) / 2;
     this.y = (point1.offsetY + point2.offsetY) / 2;
 
-    this.currentAction = new ErasingAction(this.calculateLineWidth(point1, point2), this.canvas);
+    this.currentAction = new ErasingAction(this.calculateLineWidth(point1, point2), this.canvas, this.ws);
     }
 
     continueAction(e: PointerEvent, tpCache: PointerEvent[]): void {

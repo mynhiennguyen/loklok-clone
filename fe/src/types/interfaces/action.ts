@@ -1,8 +1,17 @@
+import { CanvasUI } from "./canvas";
+
 /**
  * Interface for any Action made on the Canvase, e.g Drawing or Erasing
  */
-export interface Action {
+export abstract class Action {
+    canvas: CanvasUI = null; //Canvas to be drawn on
+    ws: WebSocket = null;
 
-    execute(): void;
-    recordAndExecute(x1: number, y1: number, x2: number, y2: number, lineWidth?: number): void;
+    constructor(canvas: CanvasUI, ws: WebSocket){
+        this.canvas = canvas
+        this.ws = ws;
+    }
+
+    abstract execute(): void;
+    abstract recordAndExecute(x1: number, y1: number, x2: number, y2: number, lineWidth?: number): void;
 }

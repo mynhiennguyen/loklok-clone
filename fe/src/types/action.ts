@@ -1,14 +1,13 @@
 import { Action } from "./interfaces/action";
 import { CanvasUI } from "./interfaces/canvas";
 
-export class DrawingAction implements Action {
-    canvas: CanvasUI //Canvas to be drawn on
+export class DrawingAction extends Action {
     points: [number, number][] = [] //All points that make up the drawing
     strokeStyle: string;
     lineWidth: number;
 
-    constructor(strokeStyle: string, lineWidth: number, canvas: CanvasUI){
-        this.canvas = canvas
+    constructor(strokeStyle: string, lineWidth: number, canvas: CanvasUI, ws: WebSocket){
+        super(canvas, ws)
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;
     }
@@ -27,16 +26,16 @@ export class DrawingAction implements Action {
 
         //draw line onto canvas
         this.canvas.drawLine(x1,y1,x2,y2, this.strokeStyle, this.lineWidth)
+        this.ws.send(`${x1},${y1},${x2},${y2},${this.strokeStyle},${this.lineWidth}`)
     }
 }
 
-export class ErasingAction implements Action {
-    canvas: CanvasUI //Canvas to be drawn on
+export class ErasingAction extends Action {
     points: [number, number][] = [] //All points that make up the drawing
     lineWidth: number;
 
-    constructor(lineWidth: number, canvas: CanvasUI){
-        this.canvas = canvas
+    constructor(lineWidth: number, canvas: CanvasUI, ws: WebSocket){
+        super(canvas, ws)
         this.lineWidth = lineWidth;
     }
 
@@ -59,11 +58,10 @@ export class ErasingAction implements Action {
     }
 }
 
-export class ClearAction implements Action {
-    canvas: CanvasUI
+export class ClearAction extends Action {
 
-    constructor(canvas: CanvasUI){
-        this.canvas = canvas;
+    constructor(canvas: CanvasUI, ws: WebSocket){
+        super(canvas, ws)
     }
     execute(): void {
         this.canvas.clear()
