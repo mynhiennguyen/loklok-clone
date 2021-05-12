@@ -2,7 +2,13 @@
 
 A web-based clone of the LokLok android app, which has been unpublished in November 2020.
 
-## Project setup
+Find the current state of the project deployed here (client): https://loklok-clone.netlify.app/
+
+## Project setup: Frontend
+```
+cd fe
+```
+and then
 ```
 npm install
 ```
@@ -24,6 +30,19 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## Project setup: Backend
+```
+cd be
+```
+and then
+```
+npm install
+```
+and then
+```
+npm start
+```
 
 ## Description of the original LokLok app
 
