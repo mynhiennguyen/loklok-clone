@@ -39,7 +39,7 @@ export default defineComponent({
     }
   },
   mounted(): void {
-    this.ws = new WebSocket('ws://loklok-clone.herokuapp.com:3000')
+    this.ws = new WebSocket('wss://loklok-clone.herokuapp.com:3000/')
 
     this.canvas = this.initCanvas();
     this.undoManager = this.initUndoManager(this.canvas);
