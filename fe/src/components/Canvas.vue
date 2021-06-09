@@ -14,11 +14,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Action } from "../types/interfaces/action";
-import { ActionHandler } from "../types/actionHandler";
+import { InputStateManager } from "../types/inputStateManager";
 import { CanvasUI } from "../types/interfaces/canvas";
 import { Canvas2D } from "../types/canvas2D";
 import { UndoManager } from "../types/undoManager";
-import { ClearAction } from "../types/action";
+import { ClearAction } from "../types/actions/clearAction";
 
 export default defineComponent({
   name: "Canvas",
@@ -28,7 +28,7 @@ export default defineComponent({
     return {
       canvas: null as CanvasUI,
       undoManager: null as UndoManager,
-      actionHandler: null as ActionHandler,
+      inputStateManager: null as InputStateManager,
       backgroundImage: 'silver',
       ws: null as WebSocket
     };
@@ -39,15 +39,27 @@ export default defineComponent({
     }
   },
   mounted(): void {
-    this.ws = new WebSocket('wss://loklok-clone.herokuapp.com/')
+    // this.ws = new WebSocket('wss://loklok-clone.herokuapp.com/')
+    this.ws = new WebSocket('ws://localhost:3000')
 
     this.canvas = this.initCanvas();
     this.undoManager = this.initUndoManager(this.canvas);
-    this.actionHandler = this.initActionHandler(this.canvas, this.ws);
+    this.inputStateManager = this.initinputStateManager(this.canvas, this.ws);
 
     this.ws.onmessage = (msg) => {
-      const pathObj = msg.data.split(',')
-      this.canvas.drawLine(pathObj[0], pathObj[1], pathObj[2], pathObj[3], pathObj[4], pathObj[5])
+      const pathObj = JSON.parse(msg.data)
+
+      if(pathObj.type === 'drawing'){
+        this.canvas.drawLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.strokeStyle[4], pathObj.lineWidth[5])
+      }
+      else if(pathObj.type === 'erasing'){
+        this.canvas.eraseLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.lineWidth[4])
+      }
+      else if(pathObj.type === 'finishedDrawingAction'){
+        for(let i = 0; i < pathObj.points.length - 2; i++){
+            this.canvas.drawLine(pathObj.points[i][0], pathObj.points[i][1], pathObj.points[i+1][0], pathObj.points[i+1][1],pathObj.strokeStyle, pathObj.lineWidth)
+        }
+      }
     }
 
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
@@ -82,13 +94,13 @@ export default defineComponent({
       }
     },
     handlePointerDown(ev: PointerEvent) {
-      this.actionHandler.startNewAction(ev);
+      this.inputStateManager.startNewAction(ev);
     },
     handlePointerMove(ev: PointerEvent) {
-      this.actionHandler.continueAction(ev);
+      this.inputStateManager.continueAction(ev);
     },
     handlePointerUp(ev: PointerEvent) {
-      const finishedAction: Action = this.actionHandler.endAction(ev);
+      const finishedAction: Action = this.inputStateManager.endAction(ev);
       this.undoManager.push(finishedAction);
     },
     initCanvas(): CanvasUI {
@@ -102,8 +114,8 @@ export default defineComponent({
     initUndoManager(canvas: CanvasUI): UndoManager {
       return new UndoManager(canvas);
     },
-    initActionHandler(canvas: CanvasUI, ws: WebSocket): ActionHandler {
-      return new ActionHandler(canvas, ws);
+    initinputStateManager(canvas: CanvasUI, ws: WebSocket): InputStateManager {
+      return new InputStateManager(canvas, ws);
     },
   },
 });

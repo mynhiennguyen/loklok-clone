@@ -2,9 +2,15 @@ import { Action } from "./interfaces/action";
 import { CanvasUI } from "./interfaces/canvas";
 import { store } from "../store";
 import { Tool } from "@/options";
-import { DrawingState, ErasingState, InputState, TouchErasingState } from "./InputState";
+import { InputState } from "./interfaces/inputState";
+import { TouchErasingState } from "./inputStates/TouchErasingState";
+import { ErasingState } from "./inputStates/ErasingState";
+import { DrawingState } from "./inputStates/DrawingState";
 
-export class ActionHandler {
+/**
+ * Sets the InputState of the application according to selected Tool or Touch-Input (e.g. Multi-touch erasing)
+ */
+export class InputStateManager {
   canvas: CanvasUI;
   isActionActive = false;
   currentAction: Action = null;
