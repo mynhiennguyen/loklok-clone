@@ -41,7 +41,7 @@ export class DrawingState extends InputState {
             this.currentAction = null;
             this.isActionActive = false;
         }
-        finishedAction.saveAction();
+        // finishedAction.saveAction();
         return finishedAction;
     }
 

@@ -10,13 +10,22 @@ const server = express()
 // create WebSocket server
 const wss = new Server({ server });
 
+const currentDrawing = [];
+
 // handle connections
 wss.on('connection', (ws) => {
+
     console.log('Client connected');
+    currentDrawing.forEach((m) => {
+      ws.send(m);
+    })
+
     ws.on('message', (msg) => {
-      wss.clients.forEach((client) => {
-        client.send(msg)
-    })
-    })
+      currentDrawing.push(msg);
+        wss.clients.forEach((client) => {
+          client.send(msg)
+      })
+  })
+
     ws.on('close', () => console.log('Client disconnected'));
   });

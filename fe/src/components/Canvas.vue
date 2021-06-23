@@ -39,8 +39,13 @@ export default defineComponent({
     }
   },
   mounted(): void {
-    // this.ws = new WebSocket('wss://loklok-clone.herokuapp.com/')
-    this.ws = new WebSocket('ws://localhost:3000')
+
+    if (process.env.NODE_ENV === "development") {
+      this.ws = new WebSocket('ws://localhost:3000')
+    }
+    else {
+      this.ws = new WebSocket('wss://loklok-clone.herokuapp.com/')
+    }
 
     this.canvas = this.initCanvas();
     this.undoManager = this.initUndoManager(this.canvas);
@@ -48,17 +53,13 @@ export default defineComponent({
 
     this.ws.onmessage = (msg) => {
       const pathObj = JSON.parse(msg.data)
+      console.log('message received', pathObj);
 
       if(pathObj.type === 'drawing'){
         this.canvas.drawLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.strokeStyle[4], pathObj.lineWidth[5])
       }
       else if(pathObj.type === 'erasing'){
         this.canvas.eraseLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.lineWidth[4])
-      }
-      else if(pathObj.type === 'finishedDrawingAction'){
-        for(let i = 0; i < pathObj.points.length - 2; i++){
-            this.canvas.drawLine(pathObj.points[i][0], pathObj.points[i][1], pathObj.points[i+1][0], pathObj.points[i+1][1],pathObj.strokeStyle, pathObj.lineWidth)
-        }
       }
     }
 
