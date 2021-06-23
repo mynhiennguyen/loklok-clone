@@ -56,10 +56,10 @@ export default defineComponent({
       console.log('message received', pathObj);
 
       if(pathObj.type === 'drawing'){
-        this.canvas.drawLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.strokeStyle[4], pathObj.lineWidth[5])
+        this.canvas.drawLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.strokeStyle, pathObj.lineWidth)
       }
       else if(pathObj.type === 'erasing'){
-        this.canvas.eraseLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.lineWidth[4])
+        this.canvas.eraseLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.lineWidth)
       }
     }
 
