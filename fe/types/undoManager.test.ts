@@ -1,6 +1,6 @@
-import { CanvasUI } from "../../src/types/interfaces/canvas";
-import { Canvas2D } from "../../src/types/canvas2D";
-import { UndoManager } from "../../src/types/undoManager";
+import { CanvasUI } from "../src/types/interfaces/canvas";
+import { Canvas2D } from "../src/types/canvas2D";
+import { UndoManager } from "../src/types/undoManager";
 
 jest.mock("../../src/types/canvas2D")
 

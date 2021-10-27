@@ -53,7 +53,6 @@ export default defineComponent({
 
     this.ws.onmessage = (msg) => {
       const pathObj = JSON.parse(msg.data)
-      console.log('message received', pathObj);
 
       if(pathObj.type === 'drawing'){
         this.canvas.drawLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.strokeStyle, pathObj.lineWidth)
