@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "ts-node server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,5 +15,8 @@
     "express": "^4.17.1",
     "utf-8-validate": "^5.0.5",
     "ws": "^7.4.5"
+  },
+  "devDependencies": {
+    "ts-node": "^10.4.0"
   }
 }
