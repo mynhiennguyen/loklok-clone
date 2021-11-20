@@ -1,5 +1,6 @@
 import { Action } from "../interfaces/action";
 import { CanvasUI } from "../interfaces/canvas";
+import { MessageType } from "../messages/message";
 
 
 export class ErasingAction extends Action {
@@ -30,7 +31,7 @@ export class ErasingAction extends Action {
 
         //send via websocket
         const pathObj = {
-            type: 'erasing',
+            type: MessageType.Erasing,
             points: [x1, y1, x2, y2],
             lineWidth: this.lineWidth
         };

@@ -1,5 +1,6 @@
 import { Action } from "../interfaces/action";
 import { CanvasUI } from "../interfaces/canvas";
+import { MessageType } from "../messages/message";
 
 export class DrawingAction extends Action {
     points: [number, number][] = [] //All points that make up the drawing
@@ -29,7 +30,7 @@ export class DrawingAction extends Action {
 
         //send via websocket
         const pathObj = {
-            type: 'drawing',
+            type: MessageType.Drawing,
             points: [x1, y1, x2, y2],
             strokeStyle: this.strokeStyle,
             lineWidth: this.lineWidth
