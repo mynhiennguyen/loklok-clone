@@ -8,21 +8,27 @@
       :style="{background: backgroundImage}"
     >
     </canvas>
+    <active-users-display :activeUsers="activeUsers"></active-users-display>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import ActiveUsersDisplay from "./ActiveUsersDisplay.vue";
 import { Action } from "../types/interfaces/action";
 import { InputStateManager } from "../types/inputStateManager";
 import { CanvasUI } from "../types/interfaces/canvas";
 import { Canvas2D } from "../types/canvas2D";
 import { UndoManager } from "../types/undoManager";
 import { ClearAction } from "../types/actions/clearAction";
+import { MessageType } from "../types/messages/message";
 
 export default defineComponent({
   name: "Canvas",
   props: {},
+  components: {
+    ActiveUsersDisplay
+  },
 
   data() {
     return {
@@ -30,7 +36,8 @@ export default defineComponent({
       undoManager: null as UndoManager,
       inputStateManager: null as InputStateManager,
       backgroundImage: 'silver',
-      ws: null as WebSocket
+      ws: null as WebSocket,
+      activeUsers: [] as Array<string>
     };
   },
   computed: {
@@ -49,16 +56,24 @@ export default defineComponent({
 
     this.canvas = this.initCanvas();
     this.undoManager = this.initUndoManager(this.canvas);
-    this.inputStateManager = this.initinputStateManager(this.canvas, this.ws);
+    this.inputStateManager = this.initInputStateManager(this.canvas, this.ws);
 
+    // Websocket commmunication
     this.ws.onmessage = (msg) => {
-      const pathObj = JSON.parse(msg.data)
+      const message = JSON.parse(msg.data);
 
-      if(pathObj.type === 'drawing'){
-        this.canvas.drawLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.strokeStyle, pathObj.lineWidth)
+      if(message.type === MessageType.ReceiveUserID) {
+        this.$store.commit('setUserId',message.data);
       }
-      else if(pathObj.type === 'erasing'){
-        this.canvas.eraseLine(pathObj.points[0], pathObj.points[1], pathObj.points[2], pathObj.points[3], pathObj.lineWidth)
+      else if(message.type === MessageType.Drawing) {
+        this.canvas.drawLine(message.points[0], message.points[1], message.points[2], message.points[3], message.strokeStyle, message.lineWidth)
+      }
+      else if(message.type === MessageType.Erasing) {
+        this.canvas.eraseLine(message.points[0], message.points[1], message.points[2], message.points[3], message.lineWidth)
+      }
+      else if(message.type === MessageType.ActiveUsersList) {
+        console.log("list of active users received", message.data);
+        this.activeUsers = message.data;
       }
     }
 
@@ -114,7 +129,7 @@ export default defineComponent({
     initUndoManager(canvas: CanvasUI): UndoManager {
       return new UndoManager(canvas);
     },
-    initinputStateManager(canvas: CanvasUI, ws: WebSocket): InputStateManager {
+    initInputStateManager(canvas: CanvasUI, ws: WebSocket): InputStateManager {
       return new InputStateManager(canvas, ws);
     },
   },

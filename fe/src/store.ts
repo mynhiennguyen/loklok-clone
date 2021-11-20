@@ -5,12 +5,14 @@ export type State = {
     tool: Tool; 
     lineThickness: number;
     lineColor: string;
+    userId: string;
 };
 
 const state: State = {
     tool: Tool.PENCIL, 
     lineThickness: Width.THIN,
     lineColor: Color.BLACK,
+    userId: null
 }
 
 export const store = createStore({
@@ -21,10 +23,12 @@ export const store = createStore({
         },
         changeLineWidth (state: State, thickness: number) {
             state.lineThickness = thickness
-            console.log(state.lineThickness)
         },
         changeLineColor(state: State, color: string){
             state.lineColor = color
+        },
+        setUserId(state: State, userId: string) {
+            state.userId = userId
         }
   }
 })
