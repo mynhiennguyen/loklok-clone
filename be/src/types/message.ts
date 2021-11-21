@@ -33,7 +33,7 @@ export class MessageDecoder {
             return new DrawingAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.Erasing) {
-            return msg as ErasingAction;
+            return new ErasingAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.Undo) {
             return msg as UndoAction;
@@ -45,7 +45,7 @@ export class MessageDecoder {
             return msg as SetBackgroundAction;
         }
         else if (msg.type === MessageType.UserSelectedColor) {
-            return msg as UserSelectedColorAction;
+            return new UserSelectedColorAction(msg.data, msg.timestamp, msg.userId);
         }
         else {
             throw new Error('invalid message type received')

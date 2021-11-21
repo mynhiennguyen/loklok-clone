@@ -1,9 +1,8 @@
 <template>
   <div class="active-users-display">
     <p class="active-users-display__label">Who is online</p>
-    <div v-for="user in activeUsers" :key="user" class="active-user">
-        <!-- currently using first two chars from userID as username. TODO: do something more fancy ✨ -->
-      <span class="active-user__name">{{ user.substring(0, 2) }}</span>
+    <div v-for="user in activeUsers" :key="user.userId" class="active-user" :style="{'backgroundColor': user.color}">
+      <span class="active-user__name">{{ user.username}}</span>
     </div>
   </div>
 </template>
@@ -14,7 +13,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "ActiveUsersDisplay",
   props: {
-    activeUsers: Array,
+    activeUsers: Array
   },
 });
 </script>
@@ -44,7 +43,7 @@ export default defineComponent({
   width: 40px;
   height: 40px;
   border-radius: 75%;
-  background-color: #020288;
+  /* background-color: #020288; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -52,6 +51,7 @@ export default defineComponent({
 }
 
 .active-user__name {
-  color: white;
+    /* Won't work for certain selected colors (e.g yellow, or white) TODO: find solution */
+  color: white; 
 }
 </style>

@@ -38,7 +38,7 @@ export default defineComponent({
       inputStateManager: null as InputStateManager,
       backgroundImage: 'silver',
       ws: null as WebSocket,
-      activeUsers: [] as Array<string>
+      activeUsers: [] as Array<Object>
     };
   },
   computed: {
@@ -60,6 +60,7 @@ export default defineComponent({
     this.inputStateManager = this.initInputStateManager(this.canvas, this.ws);
 
     // Websocket commmunication
+    // TODO: also use Factory Method Pattern here?
     this.ws.onmessage = (msg) => {
       const message = JSON.parse(msg.data);
 
@@ -73,11 +74,7 @@ export default defineComponent({
         this.canvas.eraseLine(message.data.points[0], message.data.points[1], message.data.points[2], message.data.points[3], message.data.lineWidth)
       }
       else if(message.type === MessageType.ActiveUsersList) {
-        console.log("list of active users received", message.data);
         this.activeUsers = message.data;
-      }
-      else if(message.type === MessageType.UserSelectedColor){
-        console.log("colorchange", message)
       }
     }
 

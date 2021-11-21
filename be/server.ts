@@ -1,5 +1,6 @@
-import { Action, DrawingAction } from "./src/types/action";
+import { Action } from "./src/types/action";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
+import { User } from "./src/types/user";
 import { uuid } from "./src/utils/utils";
 
 const express = require('express');
@@ -18,33 +19,32 @@ const wss = new Server({ server });
 const history: Action[] = [];
 
 // list of active users
-const activeUsers = new Map<Object,string>();
+export const activeUsers = new Map<Object,User>();
 
 // handle connections
 wss.on('connection', (ws) => {
 
-  console.log('Client connected');
-  const userId: string = createAndAssignUserId(ws)
-  activeUsers.set(ws, userId);
+  console.log('New client connected');
+  // create user and assign ID
+  const newUser: User = new User();
+  const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
+  ws.send(JSON.stringify(assignIdMessage))
+
+  // add user to list of active users and broadcast list to all other users
+  activeUsers.set(ws, newUser);
   broadcastListOfActiveUsers(activeUsers);
 
-  history.forEach((m) => { // send current history to client
+  // send current history to client
+  history.forEach((m) => { 
     ws.send(JSON.stringify(m));
   })
 
   // handle incoming messages 
   ws.on('message', (msg: any) => {
-    // const message: Message = JSON.parse(msg) // Parse message into an Action object
-    // history.push(message); // add action to history
-    // console.log(msg)
-    // wss.clients.forEach((client) => { // broadcast action to all other clients
-    //   client.send(msg)
-    // })
-
     const action: Action = MessageDecoder.parse(msg);
     action.pushTo(history);
     wss.clients.forEach((client) => { // broadcast action to all other clients
-      const msg: Message = action.broadcastActionToUsers();
+      const msg: Message = action.createMessage(ws);
       client.send(JSON.stringify(msg))
     })
   })
@@ -56,17 +56,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-//create and assign UUID for newly connected user
-const createAndAssignUserId = (ws) => {
-  const userId: string = uuid();
-  const msg = new Message(MessageType.AssignUserId, userId)
-  ws.send(JSON.stringify(msg))
-
-  return userId;
-}
-
 const broadcastListOfActiveUsers = (activeUsers) => {
-  console.log("broadcasting list of active users")
   const msg = new Message(MessageType.ActiveUsersList, [...activeUsers.values()])
   wss.clients.forEach((client) => {
     client.send(JSON.stringify(msg));

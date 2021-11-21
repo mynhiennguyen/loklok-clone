@@ -1,4 +1,6 @@
+import { activeUsers } from "../../server";
 import { Message, MessageType } from "./message";
+import { Color, User } from "./user";
 
 /**
  * Interface for any Action (or message) sent between Client and Server via Websocket
@@ -12,7 +14,7 @@ export interface Action {
     data?: Object
     timestamp?: Date
     userId?: string
-    broadcastActionToUsers(): Message
+    createMessage(ws?: Object): Message
     pushTo(history: Action[]): void
 }
 
@@ -28,7 +30,7 @@ export class DrawingAction implements Action {
         this.userId = userId;
     }
 
-    broadcastActionToUsers() {
+    createMessage() {
         return new Message(MessageType.Drawing, this.data, this.timestamp, this.userId)
     }
     pushTo(history: Action[]): void {
@@ -42,7 +44,13 @@ export class ErasingAction implements Action {
     timestamp: Date;
     userId: string;
 
-    broadcastActionToUsers() {
+    constructor(data: Object, timestamp: Date, userId: string){
+        this.data = data;
+        this.timestamp = timestamp;
+        this.userId = userId;
+    }
+
+    createMessage() {
         return new Message(MessageType.Erasing, this.data, this.timestamp, this.userId)
     }
     pushTo(history: Action[]): void {
@@ -56,7 +64,7 @@ export class UndoAction implements Action {
     timestamp: Date;
     userId: string;
 
-    broadcastActionToUsers() {
+    createMessage() {
         throw new Error("Method not implemented.");
         return null;
     }
@@ -71,7 +79,7 @@ export class RedoAction implements Action {
     timestamp: Date;
     userId: string;
 
-    broadcastActionToUsers() {
+    createMessage() {
         throw new Error("Method not implemented.");
         return null;
     }
@@ -86,7 +94,7 @@ export class SetBackgroundAction implements Action {
     timestamp: Date;
     userId: string;
 
-    broadcastActionToUsers() {
+    createMessage() {
         throw new Error("Method not implemented.");
         return null;
     }
@@ -97,12 +105,22 @@ export class SetBackgroundAction implements Action {
 
 export class UserSelectedColorAction implements Action {
     type: string = MessageType.UserSelectedColor;
-    data: string;
+    data: Color;
     timestamp: Date;
     userId: string;
 
-    broadcastActionToUsers() { 
-        return new Message(MessageType.UserSelectedColor, this.data, this.timestamp, this.userId)
+    constructor(data: Color, timestamp: Date, userId: string){
+        this.data = data;
+        this.timestamp = timestamp;
+        this.userId = userId;
+    }
+
+    createMessage(ws) {
+        // TODO: change users color
+        const user: User = activeUsers.get(ws);
+        user.setColor(this.data);
+        activeUsers.set(ws, user);
+        return new Message(MessageType.ActiveUsersList, [...activeUsers.values()])
     }
 
     pushTo(history: Action[]) {
