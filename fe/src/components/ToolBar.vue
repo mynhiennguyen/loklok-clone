@@ -26,7 +26,7 @@ import ToolBarDropdown, { DropdownItem } from "./ToolBarDropdown.vue";
 export default defineComponent({
   components: { ToolBarDropdown },
     name: "ToolBar",
-    emits: ["undo", "redo", "clear", "changeBackground"],
+    emits: ["undo", "redo", "clear", "changeBackground", "changeLineColor"],
     data() {
       return {
         width: [
@@ -74,8 +74,9 @@ export default defineComponent({
       changeWidth(width: number): void {
         this.$store.commit("changeLineWidth", width)
       },
-      changeColor(e): void {
+      changeColor(e: Color): void {
         this.$store.commit("changeLineColor", e)
+        this.$emit("changeLineColor", e)
       },
       changeBackground(e): void {
         this.$emit("changeBackground", e.target.files[0])

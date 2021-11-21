@@ -21,7 +21,8 @@ import { CanvasUI } from "../types/interfaces/canvas";
 import { Canvas2D } from "../types/canvas2D";
 import { UndoManager } from "../types/undoManager";
 import { ClearAction } from "../types/actions/clearAction";
-import { MessageType } from "../types/messages/message";
+import { Message, MessageType } from "../types/messages/message";
+import { Color } from "@/options";
 
 export default defineComponent({
   name: "Canvas",
@@ -66,14 +67,17 @@ export default defineComponent({
         this.$store.commit('setUserId',message.data);
       }
       else if(message.type === MessageType.Drawing) {
-        this.canvas.drawLine(message.points[0], message.points[1], message.points[2], message.points[3], message.strokeStyle, message.lineWidth)
+        this.canvas.drawLine(message.data.points[0], message.data.points[1], message.data.points[2], message.data.points[3], message.data.strokeStyle, message.data.lineWidth)
       }
       else if(message.type === MessageType.Erasing) {
-        this.canvas.eraseLine(message.points[0], message.points[1], message.points[2], message.points[3], message.lineWidth)
+        this.canvas.eraseLine(message.data.points[0], message.data.points[1], message.data.points[2], message.data.points[3], message.data.lineWidth)
       }
       else if(message.type === MessageType.ActiveUsersList) {
         console.log("list of active users received", message.data);
         this.activeUsers = message.data;
+      }
+      else if(message.type === MessageType.UserSelectedColor){
+        console.log("colorchange", message)
       }
     }
 
@@ -93,6 +97,11 @@ export default defineComponent({
     },
     changeBackground(file: File): void {
       this.canvas.changeBackground(file)
+    },
+    changeLineColor(color: Color): void {
+      // notify other users of color change via WS
+      const msg: Message = new Message(MessageType.UserSelectedColor, color, this.$store.userId)
+      this.ws.send(JSON.stringify(msg))
     },
     resizeCanvas(): void {
       // look up the size the canvas is being displayed

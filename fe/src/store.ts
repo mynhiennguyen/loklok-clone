@@ -4,7 +4,7 @@ import { Color, Width, Tool } from './options';
 export type State = {
     tool: Tool; 
     lineThickness: number;
-    lineColor: string;
+    lineColor: Color;
     userId: string;
 };
 
@@ -24,7 +24,7 @@ export const store = createStore({
         changeLineWidth (state: State, thickness: number) {
             state.lineThickness = thickness
         },
-        changeLineColor(state: State, color: string){
+        changeLineColor(state: State, color: Color){
             state.lineColor = color
         },
         setUserId(state: State, userId: string) {

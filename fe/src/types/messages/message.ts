@@ -5,7 +5,8 @@ export enum MessageType {
     Redo = "REDO",
     SetBackground = "SET_BACKGROUND",
     ReceiveUserID = "ASSIGN_USERID",
-    ActiveUsersList ="LIST_OF_ACTIVE_USERS"
+    ActiveUsersList ="LIST_OF_ACTIVE_USERS",
+    UserSelectedColor = "USER_SELECTED_COLOR",
 }
 
 export class Message {
