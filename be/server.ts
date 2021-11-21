@@ -26,14 +26,10 @@ wss.on('connection', (ws) => {
 
   console.log('New client connected');
   // create user and assign ID
-  const newUser: User = new User();
-  const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
-  ws.send(JSON.stringify(assignIdMessage))
-
-  // add user to list of active users and broadcast list to all other users
+  const newUser: User = createUser(ws);
+  // add new user to list of active users and broadcast list to all other users
   activeUsers.set(ws, newUser);
   broadcastListOfActiveUsers(activeUsers);
-
   // send current history to client
   history.forEach((m) => { 
     ws.send(JSON.stringify(m));
@@ -61,4 +57,11 @@ const broadcastListOfActiveUsers = (activeUsers) => {
   wss.clients.forEach((client) => {
     client.send(JSON.stringify(msg));
   })
+}
+
+const createUser = (ws: any) => {
+  const newUser: User = new User();
+  const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
+  ws.send(JSON.stringify(assignIdMessage));
+  return newUser;
 }
