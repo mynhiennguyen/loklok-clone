@@ -38,6 +38,7 @@ body, html {
   height: 100%;
   width: 100%;
   margin: 0;
+  font-family: 'Quicksand', sans-serif;
 }
 #app-container {
   position: relative;

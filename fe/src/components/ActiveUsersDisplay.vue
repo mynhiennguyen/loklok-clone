@@ -44,7 +44,7 @@ export default defineComponent({
   width: 40px;
   height: 40px;
   border-radius: 75%;
-  background-color: blue;
+  background-color: #020288;
   display: flex;
   justify-content: center;
   align-items: center;
