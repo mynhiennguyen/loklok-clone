@@ -1,3 +1,5 @@
+import { Action, DrawingAction, ErasingAction, RedoAction, SetBackgroundAction, UndoAction, UserSelectedColorAction } from "./action"
+
 /**
  * Interface for any Message sent between Client and Server via Websocket
  * @param {string} type defines the type of the action, e.g connecting, drawing, erasing, set_background
@@ -11,11 +13,43 @@ export class Message {
     timestamp?: Date
     userId?: string
 
-    constructor(type: string, data?: Object, timestamp?: Date, userId?:string) {
+    constructor(type: string, data?: Object, timestamp?: Date, userId?: string) {
         this.type = type
         this.data = data
         this.timestamp = timestamp
         this.userId = userId
+    }
+}
+
+/**
+ * Parses Messages (JSON objects) into Actions using the Factory Method Pattern
+ */
+
+export class MessageDecoder {
+    static parse(message: string): Action {
+        const msg: any = JSON.parse(message);
+        if (!msg.type) throw new Error('no message type received')
+        else if (msg.type === MessageType.Drawing) {
+            return new DrawingAction(msg.data, msg.timestamp, msg.userId);
+        }
+        else if (msg.type === MessageType.Erasing) {
+            return msg as ErasingAction;
+        }
+        else if (msg.type === MessageType.Undo) {
+            return msg as UndoAction;
+        }
+        else if (msg.type === MessageType.Redo) {
+            return msg as RedoAction;
+        }
+        else if (msg.type === MessageType.SetBackground) {
+            return msg as SetBackgroundAction;
+        }
+        else if (msg.type === MessageType.UserSelectedColor) {
+            return msg as UserSelectedColorAction;
+        }
+        else {
+            throw new Error('invalid message type received')
+        }
     }
 }
 
@@ -25,6 +59,7 @@ export enum MessageType {
     Undo = "UNDO",
     Redo = "REDO",
     SetBackground = "SET_BACKGROUND",
+    UserSelectedColor = "USER_SELECTED_COLOR",
     AssignUserId = "ASSIGN_USERID",
-    ActiveUsersList ="LIST_OF_ACTIVE_USERS"
+    ActiveUsersList = "LIST_OF_ACTIVE_USERS"
 }

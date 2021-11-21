@@ -1,4 +1,5 @@
-import { Message, MessageType } from "./src/types/message";
+import { Action, DrawingAction } from "./src/types/action";
+import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { uuid } from "./src/utils/utils";
 
 const express = require('express');
@@ -14,7 +15,7 @@ const server = express()
 const wss = new Server({ server });
 
 // history of drawing actions
-const history = [];
+const history: Action[] = [];
 
 // list of active users
 const activeUsers = new Map<Object,string>();
@@ -33,15 +34,20 @@ wss.on('connection', (ws) => {
 
   // handle incoming messages 
   ws.on('message', (msg: any) => {
-    const message: Message = JSON.parse(msg) // Parse message into an Action object
-    history.push(message); // add action to history
-    console.log(msg)
+    // const message: Message = JSON.parse(msg) // Parse message into an Action object
+    // history.push(message); // add action to history
+    // console.log(msg)
+    // wss.clients.forEach((client) => { // broadcast action to all other clients
+    //   client.send(msg)
+    // })
+
+    const action: Action = MessageDecoder.parse(msg);
+    action.pushTo(history);
     wss.clients.forEach((client) => { // broadcast action to all other clients
-      client.send(msg)
+      const msg: Message = action.broadcastActionToUsers();
+      client.send(JSON.stringify(msg))
     })
   })
-
-  //TODO: ping clients
 
   ws.on('close', () => {
     console.log('Client disconnected');
