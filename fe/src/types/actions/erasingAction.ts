@@ -1,6 +1,6 @@
 import { Action } from "../interfaces/action";
 import { CanvasUI } from "../interfaces/canvas";
-import { MessageType } from "../messages/message";
+import { Message, MessageType } from "../messages/message";
 
 
 export class ErasingAction extends Action {
@@ -30,12 +30,9 @@ export class ErasingAction extends Action {
         this.canvas.eraseLine(x1, y1, x2, y2, this.lineWidth);
 
         //send via websocket
-        const pathObj = {
-            type: MessageType.Erasing,
-            points: [x1, y1, x2, y2],
-            lineWidth: this.lineWidth
-        };
-        this.ws.send(JSON.stringify(pathObj));
+        const data = { points: [x1, y1, x2, y2], lineWidth: this.lineWidth }
+        const msg: Message = new Message(MessageType.Erasing, data, "FIX") // TODO: access userID
+        this.ws.send(JSON.stringify(msg))
     }
 
     saveAction() {
