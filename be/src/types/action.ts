@@ -3,103 +3,61 @@ import { Message, MessageType } from "./message";
 import { Color, User } from "./user";
 
 /**
- * Interface for any Action (or message) sent between Client and Server via Websocket
+ * Abstrac class for any Action (or message) sent between Client and Server via Websocket
  * @param {string} type defines the type of the action, e.g connecting, drawing, erasing, set_background
  * @param {Object} data any data that belongs to the action
  * @param {Date} timestamp
  * @param {string} userId unique identifier for each client / user
  */
-export interface Action {
+export abstract class Action {
     type: string
     data?: Object
     timestamp?: Date
-    userId?: string
-    createMessage(ws?: Object): Message
-    pushTo(history: Action[]): void
-}
+    userId?: string;
 
-export class DrawingAction implements Action {
-    type: string = MessageType.Drawing;
-    data: Object;
-    timestamp: Date;
-    userId: string;
-
-    constructor(data: Object, timestamp: Date, userId: string){
+    constructor(type: MessageType, data?: Object, timestamp?:Date, userId?:string) {
+        this.type = type;
         this.data = data;
         this.timestamp = timestamp;
         this.userId = userId;
     }
 
-    createMessage() {
-        return new Message(MessageType.Drawing, this.data, this.timestamp, this.userId)
+    createMessage(ws?: Object): Message {
+        return new Message(this.type, this.data, this.timestamp, this.userId)
     }
+
     pushTo(history: Action[]): void {
         history.push(this);
     }
 }
 
-export class ErasingAction implements Action {
-    type: string = MessageType.Erasing;
-    data: Object;
-    timestamp: Date;
-    userId: string;
-
+export class DrawingAction extends Action {
     constructor(data: Object, timestamp: Date, userId: string){
-        this.data = data;
-        this.timestamp = timestamp;
-        this.userId = userId;
-    }
-
-    createMessage() {
-        return new Message(MessageType.Erasing, this.data, this.timestamp, this.userId)
-    }
-    pushTo(history: Action[]): void {
-        history.push(this);
+        super(MessageType.Drawing, data, timestamp, userId)
     }
 }
 
-export class UndoAction implements Action {
-    data?: Object;
-    type: string = MessageType.Undo;
-    timestamp: Date;
-    userId: string;
-
-    createMessage() {
-        throw new Error("Method not implemented.");
-        return null;
-    }
-    pushTo(history: Action[]): void {
-        history.push(this);
+export class ErasingAction extends Action {
+    constructor(data: Object, timestamp: Date, userId: string){
+        super(MessageType.Erasing, data, timestamp, userId)
     }
 }
 
-export class RedoAction implements Action {
-    data?: Object;
-    type: string = MessageType.Redo;
-    timestamp: Date;
-    userId: string;
-
-    createMessage() {
-        throw new Error("Method not implemented.");
-        return null;
-    }
-    pushTo(history: Action[]): void {
-        history.push(this);
+export class UndoAction extends Action {
+    constructor(data: Object, timestamp: Date, userId: string){
+        super(MessageType.Undo, data, timestamp, userId)
     }
 }
 
-export class SetBackgroundAction implements Action {
-    type: string = MessageType.SetBackground;
-    data: Object;
-    timestamp: Date;
-    userId: string;
-
-    createMessage() {
-        throw new Error("Method not implemented.");
-        return null;
+export class RedoAction extends Action {
+    constructor(data: Object, timestamp: Date, userId: string){
+        super(MessageType.Redo, data, timestamp, userId)
     }
-    pushTo(history: Action[]): void {
-        history.push(this);
+}
+
+export class SetBackgroundAction extends Action {
+    constructor(data: Object, timestamp: Date, userId: string){
+        super(MessageType.SetBackground, data, timestamp, userId)
     }
 }
 
@@ -115,9 +73,9 @@ export class UserSelectedColorAction implements Action {
         this.userId = userId;
     }
 
-    createMessage(ws) {
-        // TODO: change users color
-        const user: User = activeUsers.get(ws);
+    createMessage(ws: any) {
+        if(!activeUsers.get(ws)) throw Error("User not found")
+        const user: User = activeUsers.get(ws)!;
         user.setColor(this.data);
         activeUsers.set(ws, user);
         return new Message(MessageType.ActiveUsersList, [...activeUsers.values()])

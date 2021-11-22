@@ -22,7 +22,7 @@ const history: Action[] = [];
 export const activeUsers = new Map<Object,User>();
 
 // handle connections
-wss.on('connection', (ws) => {
+wss.on('connection', (ws: any) => {
 
   console.log('New client connected');
   // create user and assign ID
@@ -39,7 +39,7 @@ wss.on('connection', (ws) => {
   ws.on('message', (msg: any) => {
     const action: Action = MessageDecoder.parse(msg);
     action.pushTo(history);
-    wss.clients.forEach((client) => { // broadcast action to all other clients
+    wss.clients.forEach((client: any) => { // broadcast action to all other clients
       const msg: Message = action.createMessage(ws);
       client.send(JSON.stringify(msg))
     })
@@ -52,9 +52,9 @@ wss.on('connection', (ws) => {
   });
 });
 
-const broadcastListOfActiveUsers = (activeUsers) => {
+const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
   const msg = new Message(MessageType.ActiveUsersList, [...activeUsers.values()])
-  wss.clients.forEach((client) => {
+  wss.clients.forEach((client: any) => {
     client.send(JSON.stringify(msg));
   })
 }

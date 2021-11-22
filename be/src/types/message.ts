@@ -36,13 +36,13 @@ export class MessageDecoder {
             return new ErasingAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.Undo) {
-            return msg as UndoAction;
+            return new UndoAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.Redo) {
-            return msg as RedoAction;
+            return new RedoAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.SetBackground) {
-            return msg as SetBackgroundAction;
+            return new SetBackgroundAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.UserSelectedColor) {
             return new UserSelectedColorAction(msg.data, msg.timestamp, msg.userId);
