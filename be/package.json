@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node-dev --respawn server.ts",
+    "build": "ts-node server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +15,7 @@
     "bufferutil": "^4.0.3",
     "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "ts-node": "^10.4.0",
     "utf-8-validate": "^5.0.5",
     "ws": "^7.4.5"
   },
