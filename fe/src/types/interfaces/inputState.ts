@@ -4,10 +4,10 @@ import { CanvasUI } from "./canvas";
 export abstract class InputState {
     canvas: CanvasUI;
     isActionActive = false;
-    currentAction: Action = null;
+    currentAction: Action = null as any;
     x = 0;
     y = 0;
-    ws: WebSocket = null
+    ws: WebSocket;
 
     constructor(canvas: CanvasUI, ws: WebSocket) {
         this.canvas = canvas

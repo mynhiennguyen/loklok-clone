@@ -33,17 +33,17 @@ export default defineComponent({
 
   data() {
     return {
-      canvas: null as CanvasUI,
-      undoManager: null as UndoManager,
-      inputStateManager: null as InputStateManager,
+      canvas: null as any,
+      undoManager: null as any,
+      inputStateManager: null as any,
       backgroundImage: 'silver',
-      ws: null as WebSocket,
-      activeUsers: [] as Array<Object>
+      ws: null as any,
+      activeUsers: []
     };
   },
   computed: {
     lineThickness(): void {
-      return this.$store.lineThickness
+      return this.$store.state.lineThickness
     }
   },
   mounted(): void {
@@ -61,11 +61,11 @@ export default defineComponent({
 
     // Websocket commmunication
     // TODO: also use Factory Method Pattern here?
-    this.ws.onmessage = (msg) => {
+    this.ws.onmessage = (msg: any) => {
       const message = JSON.parse(msg.data);
 
       if(message.type === MessageType.ReceiveUserID) {
-        this.$store.commit('setUserId',message.data);
+        this.$store.commit('setUserId', message.data);
       }
       else if(message.type === MessageType.Drawing) {
         this.canvas.drawLine(message.data.points[0], message.data.points[1], message.data.points[2], message.data.points[3], message.data.strokeStyle, message.data.lineWidth)
@@ -97,7 +97,7 @@ export default defineComponent({
     },
     changeLineColor(color: Color): void {
       // notify other users of color change via WS
-      const msg: Message = new Message(MessageType.UserSelectedColor, color, this.$store.userId)
+      const msg: Message = new Message(MessageType.UserSelectedColor, color, this.$store.state.userId)
       this.ws.send(JSON.stringify(msg))
     },
     resizeCanvas(): void {
@@ -125,10 +125,10 @@ export default defineComponent({
       this.undoManager.push(finishedAction);
     },
     initCanvas(): CanvasUI {
-      const canvas: HTMLElement = document.getElementById("canvas");
+      const canvas: HTMLElement = document.getElementById("canvas")!;
       const context: CanvasRenderingContext2D = (canvas as HTMLCanvasElement).getContext(
         "2d"
-      );
+      )!;
       this.resizeCanvas(); //sets height and width of canvas
       return new Canvas2D(context);
     },

@@ -4,8 +4,8 @@ import { CanvasUI } from "./canvas";
  * Interface for any Action made on the Canvase, e.g Drawing or Erasing
  */
 export abstract class Action {
-    canvas: CanvasUI = null; //Canvas to be drawn on
-    ws: WebSocket = null;
+    canvas: CanvasUI; // Canvas to be drawn on
+    ws: WebSocket;
 
     constructor(canvas: CanvasUI, ws: WebSocket){
         this.canvas = canvas

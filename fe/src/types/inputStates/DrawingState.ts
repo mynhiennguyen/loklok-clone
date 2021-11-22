@@ -29,7 +29,7 @@ export class DrawingState extends InputState {
         }
     }
     endAction(e: PointerEvent): Action {
-        let finishedAction: Action = null;
+        let finishedAction: Action = null as any;
         if (this.isActionActive && this.currentAction !== null) {
             this.currentAction.recordAndExecute(
                 this.x,
@@ -38,7 +38,7 @@ export class DrawingState extends InputState {
                 e.offsetY
             );
             finishedAction = this.currentAction;
-            this.currentAction = null;
+            this.currentAction = null as any;
             this.isActionActive = false;
         }
         // finishedAction.saveAction();

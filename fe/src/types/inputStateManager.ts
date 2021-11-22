@@ -13,12 +13,11 @@ import { DrawingState } from "./inputStates/DrawingState";
 export class InputStateManager {
   canvas: CanvasUI;
   isActionActive = false;
-  currentAction: Action = null;
   x = 0;
   y = 0;
   touchPointCache: PointerEvent[] = [];
-  inputState: InputState = null;
-  ws: WebSocket = null;
+  inputState: InputState;
+  ws: WebSocket;
 
   constructor(canvas: CanvasUI, ws: WebSocket) {
     this.canvas = canvas;

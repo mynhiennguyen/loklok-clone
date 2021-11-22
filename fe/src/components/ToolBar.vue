@@ -68,18 +68,18 @@ export default defineComponent({
       clear(): void {
         this.$emit("clear")
       },
-      changeTool(e): void {
+      changeTool(e: Tool): void {
         this.$store.commit("changeTool", e)
       },
-      changeWidth(width: number): void {
+      changeWidth(width: Width): void {
         this.$store.commit("changeLineWidth", width)
       },
       changeColor(e: Color): void {
         this.$store.commit("changeLineColor", e)
         this.$emit("changeLineColor", e)
       },
-      changeBackground(e): void {
-        this.$emit("changeBackground", e.target.files[0])
+      changeBackground(e: Event): void {
+        this.$emit("changeBackground", (e.target as HTMLInputElement).files![0])
       }
     }
     

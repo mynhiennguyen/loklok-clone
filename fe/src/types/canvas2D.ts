@@ -4,7 +4,7 @@ import { CanvasUI } from "./interfaces/canvas";
  * HTML-Canvas based implementation of the CanvasUI-Interface
  */
 export class Canvas2D implements CanvasUI {
-    ctx: CanvasRenderingContext2D = null;
+    ctx: CanvasRenderingContext2D;
 
     constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;

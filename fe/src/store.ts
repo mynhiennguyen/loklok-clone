@@ -12,7 +12,7 @@ const state: State = {
     tool: Tool.PENCIL, 
     lineThickness: Width.THIN,
     lineColor: Color.BLACK,
-    userId: null
+    userId: 'NO_ID'
 }
 
 export const store = createStore({

@@ -19,7 +19,7 @@ export class UndoManager {
 
     undo(): void {
         if (this.undoStack.length == 0) return
-        const lastAction: Action = this.undoStack.pop()
+        const lastAction: Action = this.undoStack.pop()!
         this.redoStack.push(lastAction)
         //clear canvas and redraw it
         this.canvas.clear();
@@ -30,7 +30,7 @@ export class UndoManager {
 
     redo(): void {
         if(this.redoStack.length == 0) return
-        const lastAction: Action = this.redoStack.pop();
+        const lastAction: Action = this.redoStack.pop()!;
         this.undoStack.push(lastAction);
         lastAction.execute();
     }
