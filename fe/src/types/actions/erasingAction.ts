@@ -1,3 +1,4 @@
+import { store } from '../../store';
 import { Action } from "../interfaces/action";
 import { CanvasUI } from "../interfaces/canvas";
 import { Message, MessageType } from "../messages/message";
@@ -31,7 +32,7 @@ export class ErasingAction extends Action {
 
         //send via websocket
         const data = { points: [x1, y1, x2, y2], lineWidth: this.lineWidth }
-        const msg: Message = new Message(MessageType.Erasing, data, "FIX") // TODO: access userID
+        const msg: Message = new Message(MessageType.Erasing, data, store.getters.userId)
         this.ws.send(JSON.stringify(msg))
     }
 
