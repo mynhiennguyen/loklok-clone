@@ -1,4 +1,4 @@
-import { Action, DrawingAction, ErasingAction, RedoAction, SetBackgroundAction, UndoAction, UserSelectedColorAction } from "./action"
+import { Action, ClearAction, DrawingAction, ErasingAction, RedoAction, SetBackgroundAction, UndoAction, UserSelectedColorAction } from "./action"
 
 /**
  * Interface for any Message sent between Client and Server via Websocket
@@ -36,16 +36,19 @@ export class MessageDecoder {
             return new ErasingAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.Undo) {
-            return new UndoAction(msg.data, msg.timestamp, msg.userId);
+            return new UndoAction(msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.Redo) {
-            return new RedoAction(msg.data, msg.timestamp, msg.userId);
+            return new RedoAction(msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.SetBackground) {
             return new SetBackgroundAction(msg.data, msg.timestamp, msg.userId);
         }
         else if (msg.type === MessageType.UserSelectedColor) {
             return new UserSelectedColorAction(msg.data, msg.timestamp, msg.userId);
+        }
+        else if (msg.type === MessageType.Clear) {
+            return new ClearAction(msg.timestamp, msg.userId);
         }
         else {
             throw new Error('invalid message type received')
@@ -61,5 +64,6 @@ export enum MessageType {
     SetBackground = "SET_BACKGROUND",
     UserSelectedColor = "USER_SELECTED_COLOR",
     AssignUserId = "ASSIGN_USERID",
-    ActiveUsersList = "LIST_OF_ACTIVE_USERS"
+    ActiveUsersList = "LIST_OF_ACTIVE_USERS",
+    Clear = "CLEAR"
 }

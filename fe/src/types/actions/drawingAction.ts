@@ -14,14 +14,14 @@ export class DrawingAction extends Action {
         this.lineWidth = lineWidth;
     }
 
-    execute(){
+    override execute(){
         //draws all segments according to recorded points
         for(let i = 0; i < this.points.length - 2; i++){
             this.canvas.drawLine(this.points[i][0], this.points[i][1], this.points[i+1][0], this.points[i+1][1],this.strokeStyle, this.lineWidth)
         }
     }
 
-    recordAndExecute(x1: number, y1: number, x2: number, y2: number, lineWidth = 1){
+    override recordAndExecute(x1: number, y1: number, x2: number, y2: number, lineWidth = 1){
         //record path
         this.points.push([x1, y1]) //TODO: there will be duplicate points, optimize
         this.points.push([x2, y2])
@@ -35,7 +35,7 @@ export class DrawingAction extends Action {
         this.ws.send(JSON.stringify(msg))
     }
 
-    saveAction(){
+    override saveAction(){
         const pathObj = {
             type: 'finishedDrawingAction',
             points: JSON.stringify(this.points),

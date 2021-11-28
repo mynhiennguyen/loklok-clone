@@ -5,7 +5,7 @@ import { DrawingState } from "./DrawingState";
 
 export class ErasingState extends DrawingState {
 
-    startAction(e: PointerEvent): void {
+    override startAction(e: PointerEvent): void {
         this.isActionActive = true;
         this.x = e.offsetX;
         this.y = e.offsetY;
