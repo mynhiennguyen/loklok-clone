@@ -6,7 +6,8 @@
       "rootDir": "",                             
       "strict": true,
       "moduleResolution": "node",
-      "esModuleInterop": true,                       
+      "esModuleInterop": true,
+      "noImplicitOverride": true                       
     },
     "exclude":[
       "./node_modules"
