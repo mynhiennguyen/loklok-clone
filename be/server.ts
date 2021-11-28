@@ -1,14 +1,17 @@
 import { Action } from "./src/types/action";
-import { uuidv4 } from "./src/utils/utils";
+import { Message, MessageDecoder, MessageType } from "./src/types/message";
+import { User } from "./src/types/user";
+import { uuid } from "./src/utils/utils";
 
-const express = require('express');
-const { Server } = require('ws');
+const express = require("express");
+const { Server } = require("ws");
 
 const PORT = process.env.PORT || 3000;
 
 // create HTTP server
-const server = express()
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+const server = express().listen(PORT, () =>
+  console.log(`Listening on ${PORT}`)
+);
 
 // create WebSocket server
 const wss = new Server({ server });
@@ -16,26 +19,52 @@ const wss = new Server({ server });
 // history of drawing actions
 const history: Action[] = [];
 
+// list of active users
+export const activeUsers = new Map<Object, User>();
+
 // handle connections
-wss.on('connection', (ws) => {
+wss.on("connection", (ws: any) => {
+  console.log("New client connected");
+  // create user and assign ID
+  const newUser: User = createUser(ws);
+  // add new user to list of active users and broadcast list to all other users
+  activeUsers.set(ws, newUser);
+  broadcastListOfActiveUsers(activeUsers);
+  // send current history to client
+  history.forEach((m) => {
+    ws.send(JSON.stringify(m));
+  });
 
-  console.log('Client connected');
-  // TODO: create and assign UUID for newly connected client
+  // handle incoming messages
+  ws.on("message", (msg: any) => {
+    const action: Action = MessageDecoder.parse(msg);
+    action.pushTo(history);
+    wss.clients.forEach((client: any) => {
+      // broadcast action to all other clients
+      const msg: Message = action.createMessage(ws);
+      client.send(JSON.stringify(msg));
+    });
+  });
 
-  history.forEach((m) => { // send current history to client
-    ws.send(m);
-  })
-
-  // handle incoming messages 
-  ws.on('message', (msg: any) => {
-    const action: Action = Object.assign(new Action(), JSON.parse(msg)) // Parse message into an Action object
-    history.push(action); // add action to history
-    wss.clients.forEach((client) => { // broadcast action to all other clients
-      client.send(msg)
-    })
-  })
-
-  //TODO: ping clients
-
-  ws.on('close', () => console.log('Client disconnected'));
+  ws.on("close", () => {
+    console.log("Client disconnected");
+    activeUsers.delete(ws);
+    broadcastListOfActiveUsers(activeUsers);
+  });
 });
+
+const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
+  const msg = new Message(MessageType.ActiveUsersList, [
+    ...activeUsers.values(),
+  ]);
+  wss.clients.forEach((client: any) => {
+    client.send(JSON.stringify(msg));
+  });
+};
+
+const createUser = (ws: any) => {
+  const newUser: User = new User();
+  const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
+  ws.send(JSON.stringify(assignIdMessage));
+  return newUser;
+};

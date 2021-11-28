@@ -4,9 +4,10 @@
       "module": "commonjs",                           
       "outDir": "./dist",                             
       "rootDir": "",                             
-      "strict": false,
+      "strict": true,
       "moduleResolution": "node",
-      "esModuleInterop": true,                       
+      "esModuleInterop": true,
+      "noImplicitOverride": true                       
     },
     "exclude":[
       "./node_modules"

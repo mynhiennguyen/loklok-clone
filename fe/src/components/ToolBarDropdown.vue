@@ -15,11 +15,11 @@
 import { defineComponent, PropType } from 'vue'
 
 export class DropdownItem {
-    icon
-    value
+    icon: Record<string,any>
+    value: any
     onClick: Function
 
-    constructor(icon, value, callback){
+    constructor(icon: Record<string,any>, value: any, callback: Function){
         this.icon = icon;
         this.value = value;
         this.onClick = callback;
@@ -35,12 +35,12 @@ export default defineComponent({
     },
     data() {
         return {
-            selectedItem: this.items[0],
+            selectedItem: this.items![0],
             showDropdown: false
         }
     },
     methods: {
-        changeSelectedItem(item){
+        changeSelectedItem(item: DropdownItem){
             this.selectedItem = item;
             item.onClick(item.value);
             this.showDropdown = false;

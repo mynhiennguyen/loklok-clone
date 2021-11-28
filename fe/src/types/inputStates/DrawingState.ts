@@ -5,7 +5,7 @@ import { InputState } from "../interfaces/inputState";
 
 
 export class DrawingState extends InputState {
-    startAction(e: PointerEvent): void {
+    override startAction(e: PointerEvent): void {
         this.isActionActive = true;
         this.x = e.offsetX;
         this.y = e.offsetY;
@@ -14,7 +14,7 @@ export class DrawingState extends InputState {
             this.currentAction = new DrawingAction(store.state.lineColor, store.state.lineThickness, this.canvas, this.ws);
         }
     }
-    continueAction(e: PointerEvent): void {
+    override continueAction(e: PointerEvent): void {
         if (this.isActionActive && this.currentAction !== null) {
             //executes drawing and records all points
             this.currentAction.recordAndExecute(
@@ -28,8 +28,8 @@ export class DrawingState extends InputState {
             this.y = e.offsetY;
         }
     }
-    endAction(e: PointerEvent): Action {
-        let finishedAction: Action = null;
+    override endAction(e: PointerEvent): Action {
+        let finishedAction: Action = null as any;
         if (this.isActionActive && this.currentAction !== null) {
             this.currentAction.recordAndExecute(
                 this.x,
@@ -38,7 +38,7 @@ export class DrawingState extends InputState {
                 e.offsetY
             );
             finishedAction = this.currentAction;
-            this.currentAction = null;
+            this.currentAction = null as any;
             this.isActionActive = false;
         }
         // finishedAction.saveAction();

@@ -5,7 +5,7 @@ import { InputState } from "../interfaces/inputState";
 
 export class TouchErasingState extends InputState {
 
-    startAction(e: PointerEvent, tpCache: PointerEvent[]): void {
+    override startAction(e: PointerEvent, tpCache: PointerEvent[]): void {
         this.isActionActive = true;
         const point1 = tpCache[0];
         const point2 = tpCache[1];
@@ -16,7 +16,7 @@ export class TouchErasingState extends InputState {
         this.currentAction = new ErasingAction(this.calculateLineWidth(point1, point2), this.canvas, this.ws);
     }
 
-    continueAction(e: PointerEvent, tpCache: PointerEvent[]): void {
+    override continueAction(e: PointerEvent, tpCache: PointerEvent[]): void {
         if (this.isActionActive && this.currentAction !== null) {
             const point1 = tpCache[0];
             const point2 = tpCache[1];
@@ -36,8 +36,8 @@ export class TouchErasingState extends InputState {
             this.y = e.offsetY;
         }
     }
-    endAction(e: PointerEvent, tpCache: PointerEvent[]): Action {
-        let finishedAction: Action = null;
+    override endAction(e: PointerEvent, tpCache: PointerEvent[]): Action {
+        let finishedAction: Action = null as any;
         if (this.isActionActive && this.currentAction !== null) {
             this.currentAction.recordAndExecute(
                 this.x,
@@ -47,7 +47,7 @@ export class TouchErasingState extends InputState {
                 this.calculateLineWidth(tpCache[0], tpCache[1])
             );
             finishedAction = this.currentAction;
-            this.currentAction = null;
+            this.currentAction = null as any;
             this.isActionActive = false;
         }
         finishedAction.saveAction();
