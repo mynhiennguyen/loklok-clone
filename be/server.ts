@@ -3,14 +3,15 @@ import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
 import { uuid } from "./src/utils/utils";
 
-const express = require('express');
-const { Server } = require('ws');
+const express = require("express");
+const { Server } = require("ws");
 
 const PORT = process.env.PORT || 3000;
 
 // create HTTP server
-const server = express()
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+const server = express().listen(PORT, () =>
+  console.log(`Listening on ${PORT}`)
+);
 
 // create WebSocket server
 const wss = new Server({ server });
@@ -19,49 +20,51 @@ const wss = new Server({ server });
 const history: Action[] = [];
 
 // list of active users
-export const activeUsers = new Map<Object,User>();
+export const activeUsers = new Map<Object, User>();
 
 // handle connections
-wss.on('connection', (ws: any) => {
-
-  console.log('New client connected');
+wss.on("connection", (ws: any) => {
+  console.log("New client connected");
   // create user and assign ID
   const newUser: User = createUser(ws);
   // add new user to list of active users and broadcast list to all other users
   activeUsers.set(ws, newUser);
   broadcastListOfActiveUsers(activeUsers);
   // send current history to client
-  history.forEach((m) => { 
+  history.forEach((m) => {
     ws.send(JSON.stringify(m));
-  })
+  });
 
-  // handle incoming messages 
-  ws.on('message', (msg: any) => {
+  // handle incoming messages
+  ws.on("message", (msg: any) => {
     const action: Action = MessageDecoder.parse(msg);
     action.pushTo(history);
-    wss.clients.forEach((client: any) => { // broadcast action to all other clients
+    wss.clients.forEach((client: any) => {
+      // broadcast action to all other clients
       const msg: Message = action.createMessage(ws);
-      client.send(JSON.stringify(msg))
-    })
-  })
+      client.send(JSON.stringify(msg));
+    });
+  });
 
-  ws.on('close', () => {
-    console.log('Client disconnected');
+  ws.on("close", () => {
+    console.log("Client disconnected");
     activeUsers.delete(ws);
     broadcastListOfActiveUsers(activeUsers);
   });
 });
 
 const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
-  const msg = new Message(MessageType.ActiveUsersList, [...activeUsers.values()])
+  const msg = new Message(MessageType.ActiveUsersList, [
+    ...activeUsers.values(),
+  ]);
   wss.clients.forEach((client: any) => {
     client.send(JSON.stringify(msg));
-  })
-}
+  });
+};
 
 const createUser = (ws: any) => {
   const newUser: User = new User();
   const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
   ws.send(JSON.stringify(assignIdMessage));
   return newUser;
-}
+};
