@@ -33,11 +33,11 @@ export default defineComponent({
 
   data() {
     return {
-      canvas: null as any,
-      undoManager: null as any,
-      inputStateManager: null as any,
+      canvas: null as unknown as CanvasUI,
+      undoManager: null as unknown as UndoManager,
+      inputStateManager: null as unknown as InputStateManager,
       backgroundImage: 'silver',
-      ws: null as any,
+      ws: null as unknown as WebSocket,
       activeUsers: []
     };
   },
@@ -75,6 +75,9 @@ export default defineComponent({
       }
       else if(message.type === MessageType.ActiveUsersList) {
         this.activeUsers = message.data;
+      }
+      else if(message.type === MessageType.Clear) {
+        this.canvas.clear();
       }
     }
 

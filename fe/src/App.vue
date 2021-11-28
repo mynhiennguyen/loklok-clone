@@ -25,19 +25,19 @@ export default defineComponent({
   },
   methods: {
     undo(): void {
-      (this.$refs.canvas as any).undo();
+      (this.$refs.canvas as typeof Canvas).undo();
     },
     redo(): void {
-      (this.$refs.canvas as any).redo();
+      (this.$refs.canvas as typeof Canvas).redo();
     },
     clear(): void {
-      (this.$refs.canvas as any).clear();
+      (this.$refs.canvas as typeof Canvas).clear();
     },
     changeBackground(file: File): void {
-      (this.$refs.canvas as any).changeBackground(file);
+      (this.$refs.canvas as typeof Canvas).changeBackground(file);
     },
     changeLineColor(color: Color): void {
-      (this.$refs.canvas as any).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
+      (this.$refs.canvas as typeof Canvas).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
     }
   },
 });
