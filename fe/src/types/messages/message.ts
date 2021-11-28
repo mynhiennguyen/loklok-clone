@@ -7,18 +7,13 @@ export enum MessageType {
     ReceiveUserID = "ASSIGN_USERID",
     ActiveUsersList ="LIST_OF_ACTIVE_USERS",
     UserSelectedColor = "USER_SELECTED_COLOR",
+    Clear = "CLEAR"
 }
 
 export class Message {
-    type: MessageType
-    data: any
-    timestamp: Date
-    userId: string
+    private readonly timestamp: Date;
 
-    constructor(type: MessageType, data: any, userId: string) {
-        this.type = type
-        this.data = data
+    constructor(private readonly type: MessageType, private readonly data?: any, private readonly userId?: string) {
         this.timestamp = new Date()
-        this.userId = userId
     }
 }
