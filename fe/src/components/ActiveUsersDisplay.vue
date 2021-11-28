@@ -1,8 +1,13 @@
 <template>
   <div class="active-users-display">
     <p class="active-users-display__label">Who is online</p>
-    <div v-for="user in activeUsers" :key="user.userId" class="active-user" :style="{'backgroundColor': user.color}">
-      <span class="active-user__name">{{ user.username}}</span>
+    <div
+      v-for="user in activeUsers"
+      :key="user.userId"
+      class="active-user"
+      :style="{ backgroundColor: user.color }"
+    >
+      <span class="active-user__name">{{ user.username }}</span>
     </div>
   </div>
 </template>
@@ -13,7 +18,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "ActiveUsersDisplay",
   props: {
-    activeUsers: Array
+    activeUsers: Array,
   },
 });
 </script>
@@ -22,7 +27,7 @@ export default defineComponent({
 .active-users-display {
   width: 50px;
   max-width: 300px;
-  background-color: rgba(255,255,255,0.5);
+  background-color: rgba(255, 255, 255, 0.5);
   position: fixed;
   left: 0;
   top: 50%;
@@ -51,7 +56,7 @@ export default defineComponent({
 }
 
 .active-user__name {
-    /* Won't work for certain selected colors (e.g yellow, or white) TODO: find solution */
-  color: white; 
+  /* Won't work for certain selected colors (e.g yellow, or white) TODO: find solution */
+  color: white;
 }
 </style>

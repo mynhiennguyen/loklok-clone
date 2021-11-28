@@ -5,7 +5,7 @@
       @pointerdown="handlePointerDown"
       @pointermove="handlePointerMove"
       @pointerup="handlePointerUp"
-      :style="{background: backgroundImage}"
+      :style="{ background: backgroundImage }"
     >
     </canvas>
     <active-users-display :activeUsers="activeUsers"></active-users-display>
@@ -22,37 +22,35 @@ import { Canvas2D } from "../types/canvas2D";
 import { UndoManager } from "../types/undoManager";
 import { ClearAction } from "../types/actions/clearAction";
 import { Message, MessageType } from "../types/messages/message";
-import { Color } from "@/options";
+import { Color } from "../options";
 
 export default defineComponent({
   name: "Canvas",
   props: {},
   components: {
-    ActiveUsersDisplay
+    ActiveUsersDisplay,
   },
 
   data() {
     return {
-      canvas: null as unknown as CanvasUI,
-      undoManager: null as unknown as UndoManager,
-      inputStateManager: null as unknown as InputStateManager,
-      backgroundImage: 'silver',
-      ws: null as unknown as WebSocket,
-      activeUsers: []
+      canvas: (null as unknown) as CanvasUI,
+      undoManager: (null as unknown) as UndoManager,
+      inputStateManager: (null as unknown) as InputStateManager,
+      backgroundImage: "silver",
+      ws: (null as unknown) as WebSocket,
+      activeUsers: [],
     };
   },
   computed: {
     lineThickness(): void {
-      return this.$store.state.lineThickness
-    }
+      return this.$store.state.lineThickness;
+    },
   },
   mounted(): void {
-
     if (process.env.NODE_ENV === "development") {
-      this.ws = new WebSocket('ws://localhost:3000')
-    }
-    else {
-      this.ws = new WebSocket('wss://loklok-clone.herokuapp.com/')
+      this.ws = new WebSocket("ws://localhost:3000");
+    } else {
+      this.ws = new WebSocket("wss://loklok-clone.herokuapp.com/");
     }
 
     this.canvas = this.initCanvas();
@@ -64,22 +62,31 @@ export default defineComponent({
     this.ws.onmessage = (msg: any) => {
       const message = JSON.parse(msg.data);
 
-      if(message.type === MessageType.ReceiveUserID) {
-        this.$store.commit('setUserId', message.data);
-      }
-      else if(message.type === MessageType.Drawing) {
-        this.canvas.drawLine(message.data.points[0], message.data.points[1], message.data.points[2], message.data.points[3], message.data.strokeStyle, message.data.lineWidth)
-      }
-      else if(message.type === MessageType.Erasing) {
-        this.canvas.eraseLine(message.data.points[0], message.data.points[1], message.data.points[2], message.data.points[3], message.data.lineWidth)
-      }
-      else if(message.type === MessageType.ActiveUsersList) {
+      if (message.type === MessageType.ReceiveUserID) {
+        this.$store.commit("setUserId", message.data);
+      } else if (message.type === MessageType.Drawing) {
+        this.canvas.drawLine(
+          message.data.points[0],
+          message.data.points[1],
+          message.data.points[2],
+          message.data.points[3],
+          message.data.strokeStyle,
+          message.data.lineWidth
+        );
+      } else if (message.type === MessageType.Erasing) {
+        this.canvas.eraseLine(
+          message.data.points[0],
+          message.data.points[1],
+          message.data.points[2],
+          message.data.points[3],
+          message.data.lineWidth
+        );
+      } else if (message.type === MessageType.ActiveUsersList) {
         this.activeUsers = message.data;
-      }
-      else if(message.type === MessageType.Clear) {
+      } else if (message.type === MessageType.Clear) {
         this.canvas.clear();
       }
-    }
+    };
 
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
@@ -96,12 +103,16 @@ export default defineComponent({
       this.undoManager.push(clearAction);
     },
     changeBackground(file: File): void {
-      this.canvas.changeBackground(file)
+      this.canvas.changeBackground(file);
     },
     changeLineColor(color: Color): void {
       // notify other users of color change via WS
-      const msg: Message = new Message(MessageType.UserSelectedColor, color, this.$store.state.userId)
-      this.ws.send(JSON.stringify(msg))
+      const msg: Message = new Message(
+        MessageType.UserSelectedColor,
+        color,
+        this.$store.state.userId
+      );
+      this.ws.send(JSON.stringify(msg));
     },
     resizeCanvas(): void {
       // look up the size the canvas is being displayed

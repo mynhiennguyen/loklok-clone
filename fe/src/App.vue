@@ -38,7 +38,7 @@ export default defineComponent({
     },
     changeLineColor(color: Color): void {
       (this.$refs.canvas as typeof Canvas).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
-    }
+    },
   },
 });
 </script>
