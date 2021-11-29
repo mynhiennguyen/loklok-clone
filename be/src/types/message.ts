@@ -17,17 +17,13 @@ import {
  * @param {string} userId unique identifier for each client / user
  */
 export class Message {
-  type: string;
-  data?: Object;
-  timestamp?: Date;
-  userId?: string;
 
-  constructor(type: string, data?: Object, timestamp?: Date, userId?: string) {
-    this.type = type;
-    this.data = data;
-    this.timestamp = timestamp;
-    this.userId = userId;
-  }
+  constructor(
+    private readonly type: MessageType,
+    private readonly data?: any,
+    private readonly timestamp?: Date,
+    private readonly userId?: string
+  ) {}
 }
 
 /**

@@ -98,9 +98,12 @@ export default defineComponent({
       this.undoManager.redo();
     },
     clear(): void {
-      const clearAction: Action = new ClearAction(this.canvas, this.ws);
-      clearAction.execute();
-      this.undoManager.push(clearAction);
+      // const clearAction: Action = new ClearAction(this.canvas, this.ws);
+      // clearAction.execute();
+      // this.undoManager.push(clearAction);
+      this.canvas.clear();
+      const msg: Message = new Message(MessageType.Clear, undefined, this.$store.state.userId)
+      this.ws.send(JSON.stringify(msg));
     },
     changeBackground(file: File): void {
       this.canvas.changeBackground(file);
