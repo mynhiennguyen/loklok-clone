@@ -1,9 +1,10 @@
 import { activeUsers } from "../../server";
+import { HistoryStack } from "./history";
 import { Message, MessageType } from "./message";
 import { Color, User } from "./user";
 
 /**
- * Abstrac class for any Action (or message) sent between Client and Server via Websocket
+ * Abstract class for any Action (or message) sent between Client and Server via Websocket
  * @param {string} type defines the type of the action, e.g connecting, drawing, erasing, set_background
  * @param {Record<string, unknown>} data any data that belongs to the action
  * @param {Date} timestamp
@@ -23,7 +24,7 @@ export abstract class Action<
     return new Message(this.type, this.data, this.timestamp, this.userId);
   }
 
-  pushTo(history: Action<TData>[]): void {
+  pushTo(history: HistoryStack): void {
     history.push(this);
   }
 }
@@ -43,6 +44,17 @@ export class ErasingAction extends Action<Record<string, any>> {
 export class UndoAction extends Action {
   constructor(timestamp: Date, userId: string) {
     super(MessageType.Undo, undefined, timestamp, userId);
+  }
+
+  override pushTo(history: HistoryStack): void {
+    // manipulates history instead
+    history.undo(this.userId);
+  }
+
+  override createMessage(ws: WebSocket): Message {
+    //TODO: trigger a clear and redraw for all other users
+    //TODO: create MessageSequence?
+    return new Message
   }
 }
 
@@ -77,7 +89,7 @@ export class UserSelectedColorAction extends Action<Color> {
     return new Message(MessageType.ActiveUsersList, [...activeUsers.values()]);
   }
 
-  override pushTo(history: Action<Color>[]) {
+  override pushTo(history: HistoryStack) {
     // does not need to be in history - do nothing
   }
 }

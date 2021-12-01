@@ -92,10 +92,12 @@ export default defineComponent({
   },
   methods: {
     undo(): void {
-      this.undoManager.undo();
+      // this.undoManager.undo();
+      const msg: Message = new Message(MessageType.Undo, undefined, this.$store.state.userId);
+      this.ws.send(JSON.stringify(msg));
     },
     redo(): void {
-      this.undoManager.redo();
+      // this.undoManager.redo();
     },
     clear(): void {
       // const clearAction: Action = new ClearAction(this.canvas, this.ws);

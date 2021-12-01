@@ -1,4 +1,5 @@
 import { Action } from "./src/types/action";
+import { HistoryStack } from "./src/types/history";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
 import { uuid } from "./src/utils/utils";
@@ -17,7 +18,8 @@ const server = express().listen(PORT, () =>
 const wss = new Server({ server });
 
 // history of drawing actions
-const history: Action[] = [];
+// TODO: create HistoryClass with undo/redo stacks
+const history: HistoryStack = new HistoryStack();
 
 // list of active users
 export const activeUsers = new Map<Object, User>();
@@ -25,12 +27,14 @@ export const activeUsers = new Map<Object, User>();
 // handle connections
 wss.on("connection", (ws: any) => {
   console.log("New client connected");
+  // TODO: refactor to handleNewClientConnection()
   // create user and assign ID
   const newUser: User = createUser(ws);
   // add new user to list of active users and broadcast list to all other users
   activeUsers.set(ws, newUser);
   broadcastListOfActiveUsers(activeUsers);
   // send current history to client
+  // TODO: create message out of this?
   history.forEach((m) => {
     ws.send(JSON.stringify(m));
   });
@@ -39,11 +43,7 @@ wss.on("connection", (ws: any) => {
   ws.on("message", (msg: any) => {
     const action: Action = MessageDecoder.parse(msg);
     action.pushTo(history);
-    wss.clients.forEach((client: any) => {
-      // broadcast action to all other clients
-      const msg: Message = action.createMessage(ws);
-      client.send(JSON.stringify(msg));
-    });
+    broadcastToClients(action.createMessage(ws)) // TODO: remove ws as parameter if possible
   });
 
   ws.on("close", () => {
@@ -68,3 +68,9 @@ const createUser = (ws: any) => {
   ws.send(JSON.stringify(assignIdMessage));
   return newUser;
 };
+
+const broadcastToClients = (msg: Message) => {
+  wss.clients.forEach((client: any) => {
+    client.send(JSON.stringify(msg));
+  });
+}
