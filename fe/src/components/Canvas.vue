@@ -19,7 +19,6 @@ import { Action } from "../types/interfaces/action";
 import { InputStateManager } from "../types/inputStateManager";
 import { CanvasUI } from "../types/interfaces/canvas";
 import { Canvas2D } from "../types/canvas2D";
-import { UndoManager } from "../types/undoManager";
 import { ClearAction } from "../types/actions/clearAction";
 import { Message, MessageType } from "../types/messages/message";
 import { Color } from "../options";
@@ -34,7 +33,6 @@ export default defineComponent({
   data() {
     return {
       canvas: (null as unknown) as CanvasUI,
-      undoManager: (null as unknown) as UndoManager,
       inputStateManager: (null as unknown) as InputStateManager,
       backgroundImage: "silver",
       ws: (null as unknown) as WebSocket,
@@ -54,7 +52,6 @@ export default defineComponent({
     }
 
     this.canvas = this.initCanvas();
-    this.undoManager = this.initUndoManager(this.canvas);
     this.inputStateManager = this.initInputStateManager(this.canvas, this.ws);
 
     // Websocket commmunication
@@ -92,17 +89,14 @@ export default defineComponent({
   },
   methods: {
     undo(): void {
-      // this.undoManager.undo();
       const msg: Message = new Message(MessageType.Undo, undefined, this.$store.state.userId);
       this.ws.send(JSON.stringify(msg));
     },
     redo(): void {
-      // this.undoManager.redo();
+      const msg: Message = new Message(MessageType.Redo, undefined, this.$store.state.userId);
+      this.ws.send(JSON.stringify(msg));
     },
     clear(): void {
-      // const clearAction: Action = new ClearAction(this.canvas, this.ws);
-      // clearAction.execute();
-      // this.undoManager.push(clearAction);
       this.canvas.clear();
       const msg: Message = new Message(MessageType.Clear, undefined, this.$store.state.userId)
       this.ws.send(JSON.stringify(msg));
@@ -141,7 +135,6 @@ export default defineComponent({
     },
     handlePointerUp(ev: PointerEvent) {
       const finishedAction: Action = this.inputStateManager.endAction(ev);
-      this.undoManager.push(finishedAction);
     },
     initCanvas(): CanvasUI {
       const canvas: HTMLElement = document.getElementById("canvas")!;
@@ -150,9 +143,6 @@ export default defineComponent({
       )!;
       this.resizeCanvas(); //sets height and width of canvas
       return new Canvas2D(context);
-    },
-    initUndoManager(canvas: CanvasUI): UndoManager {
-      return new UndoManager(canvas);
     },
     initInputStateManager(canvas: CanvasUI, ws: WebSocket): InputStateManager {
       return new InputStateManager(canvas, ws);
