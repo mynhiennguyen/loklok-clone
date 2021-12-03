@@ -12,8 +12,8 @@ export class DrawingState extends InputState {
         //init new DrawingAction
         if (this.currentAction == null) {
             const data: Record<string, string | number> = {
-                lineColor: store.state.lineColor,
-                strokeWidth: store.state.lineThickness
+                strokeStyle: store.state.lineColor,
+                lineWidth: store.state.lineThickness
             }
             this.currentAction = new DrawingAction(data, this.canvas, this.ws);
         }

@@ -8,8 +8,9 @@ export class ErasingAction extends Action {
     points: [number, number][] = []; // All points that make up the drawing
     lineWidth: number;
 
-    constructor(data: Record<string, number>, canvas: CanvasUI, ws: WebSocket) {
+    constructor(data: Record<string, any>, canvas: CanvasUI, ws: WebSocket) {
         super(canvas, ws);
+        this.points = data.points ?? [] as [number, number][];
         this.lineWidth = data.lineWidth;
     }
 

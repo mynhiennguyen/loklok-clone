@@ -8,8 +8,9 @@ export class DrawingAction extends Action {
     strokeStyle: string;
     lineWidth: number;
 
-    constructor(data: Record<string, string | number>, canvas: CanvasUI, ws: WebSocket){
+    constructor(data: Record<string, any>, canvas: CanvasUI, ws: WebSocket){
         super(canvas, ws)
+        this.points = data.points ?? [] as [number, number][];
         this.strokeStyle = data.strokeStyle as string;
         this.lineWidth = data.lineWidth as number;
     }
@@ -32,6 +33,7 @@ export class DrawingAction extends Action {
         //send via websocket
         const data = { points: [x1, y1, x2, y2], strokeStyle: this.strokeStyle, lineWidth: this.lineWidth }
         const msg: Message = new Message(MessageType.ActiveDrawing, data, store.getters.userId)
+        console.log(JSON.stringify(msg))
         this.ws.send(JSON.stringify(msg))
     }
 
