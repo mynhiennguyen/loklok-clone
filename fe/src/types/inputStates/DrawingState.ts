@@ -11,7 +11,11 @@ export class DrawingState extends InputState {
         this.y = e.offsetY;
         //init new DrawingAction
         if (this.currentAction == null) {
-            this.currentAction = new DrawingAction(store.state.lineColor, store.state.lineThickness, this.canvas, this.ws);
+            const data: Record<string, string | number> = {
+                lineColor: store.state.lineColor,
+                strokeWidth: store.state.lineThickness
+            }
+            this.currentAction = new DrawingAction(data, this.canvas, this.ws);
         }
     }
     override continueAction(e: PointerEvent): void {
@@ -41,7 +45,7 @@ export class DrawingState extends InputState {
             this.currentAction = null as any;
             this.isActionActive = false;
         }
-        // finishedAction.saveAction();
+        finishedAction.saveAction();
         return finishedAction;
     }
 

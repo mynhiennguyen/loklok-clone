@@ -20,7 +20,7 @@ export abstract class Action<
     public readonly userId?: string
   ) {}
 
-  createMessage(ws?: Object): Message {
+  createMessage(ws?: Object): Message | undefined {
     return new Message(this.type, this.data, this.timestamp, this.userId);
   }
 
@@ -29,15 +29,41 @@ export abstract class Action<
   }
 }
 
-export class DrawingAction extends Action<Record<string, any>> {
+export class ActiveDrawingAction extends Action<Record<string, any>> {
   constructor(data: Record<string, any>, timestamp: Date, userId: string) {
-    super(MessageType.Drawing, data, timestamp, userId);
+    super(MessageType.ActiveDrawing, data, timestamp, userId);
+  }
+  override pushTo(history: HistoryStack): void {
+    // does not need to be in history - do nothing
   }
 }
 
-export class ErasingAction extends Action<Record<string, any>> {
+export class CompletedDrawingAction extends Action<Record<string, any>> {
   constructor(data: Record<string, any>, timestamp: Date, userId: string) {
-    super(MessageType.Erasing, data, timestamp, userId);
+    super(MessageType.CompletedDrawing, data, timestamp, userId);
+  }
+  override createMessage(ws?: Object): undefined {
+    // does not need to be broadcasted to other users
+    return undefined;
+  }
+}
+
+export class ActiveErasingAction extends Action<Record<string, any>> {
+  constructor(data: Record<string, any>, timestamp: Date, userId: string) {
+    super(MessageType.ActiveErasing, data, timestamp, userId);
+  }
+  override pushTo(history: HistoryStack): void {
+    // does not need to be in history - do nothing
+  }
+}
+
+export class CompletedErasingAction extends Action<Record<string, any>> {
+  constructor(data: Record<string, any>, timestamp: Date, userId: string) {
+    super(MessageType.CompletedErasing, data, timestamp, userId);
+  }
+  override createMessage(ws?: Object): undefined {
+    // does not need to be broadcasted to other users
+    return undefined;
   }
 }
 
@@ -51,10 +77,10 @@ export class UndoAction extends Action {
     history.undo(this.userId);
   }
 
-  override createMessage(ws: WebSocket): Message {
+  override createMessage(ws: WebSocket): undefined {
     //TODO: trigger a clear and redraw for all other users
     //TODO: create MessageSequence?
-    return new Message
+    return undefined;
   }
 }
 

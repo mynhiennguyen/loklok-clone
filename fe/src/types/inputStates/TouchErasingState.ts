@@ -13,7 +13,12 @@ export class TouchErasingState extends InputState {
         this.x = (point1.offsetX + point2.offsetX) / 2;
         this.y = (point1.offsetY + point2.offsetY) / 2;
 
-        this.currentAction = new ErasingAction(this.calculateLineWidth(point1, point2), this.canvas, this.ws);
+        if (this.currentAction == null) {
+            const data: Record<string, number> = {
+                strokeWidth: this.calculateLineWidth(point1, point2)
+            }
+            this.currentAction = new ErasingAction(data, this.canvas, this.ws);
+        }
     }
 
     override continueAction(e: PointerEvent, tpCache: PointerEvent[]): void {

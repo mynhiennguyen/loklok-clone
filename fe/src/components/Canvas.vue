@@ -20,7 +20,11 @@ import { InputStateManager } from "../types/inputStateManager";
 import { CanvasUI } from "../types/interfaces/canvas";
 import { Canvas2D } from "../types/canvas2D";
 import { ClearAction } from "../types/actions/clearAction";
-import { Message, MessageType } from "../types/messages/message";
+import {
+  Message,
+  MessageDecoder,
+  MessageType,
+} from "../types/messages/message";
 import { Color } from "../options";
 
 export default defineComponent({
@@ -36,7 +40,7 @@ export default defineComponent({
       inputStateManager: (null as unknown) as InputStateManager,
       backgroundImage: "silver",
       ws: (null as unknown) as WebSocket,
-      activeUsers: [],
+      activeUsers: [] as Record<string, string>[],
     };
   },
   computed: {
@@ -55,50 +59,41 @@ export default defineComponent({
     this.inputStateManager = this.initInputStateManager(this.canvas, this.ws);
 
     // Websocket commmunication
-    // TODO: also use Factory Method Pattern here?
     this.ws.onmessage = (msg: any) => {
-      const message = JSON.parse(msg.data);
-
-      if (message.type === MessageType.ReceiveUserID) {
-        this.$store.commit("setUserId", message.data);
-      } else if (message.type === MessageType.Drawing) {
-        this.canvas.drawLine(
-          message.data.points[0],
-          message.data.points[1],
-          message.data.points[2],
-          message.data.points[3],
-          message.data.strokeStyle,
-          message.data.lineWidth
-        );
-      } else if (message.type === MessageType.Erasing) {
-        this.canvas.eraseLine(
-          message.data.points[0],
-          message.data.points[1],
-          message.data.points[2],
-          message.data.points[3],
-          message.data.lineWidth
-        );
-      } else if (message.type === MessageType.ActiveUsersList) {
-        this.activeUsers = message.data;
-      } else if (message.type === MessageType.Clear) {
-        this.canvas.clear();
-      }
+      const action: Action = MessageDecoder.parse(
+        msg.data,
+        this.canvas,
+        this.ws
+      );
+      action.execute(this);
     };
 
     window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
     undo(): void {
-      const msg: Message = new Message(MessageType.Undo, undefined, this.$store.state.userId);
+      const msg: Message = new Message(
+        MessageType.Undo,
+        undefined,
+        this.$store.state.userId
+      );
       this.ws.send(JSON.stringify(msg));
     },
     redo(): void {
-      const msg: Message = new Message(MessageType.Redo, undefined, this.$store.state.userId);
+      const msg: Message = new Message(
+        MessageType.Redo,
+        undefined,
+        this.$store.state.userId
+      );
       this.ws.send(JSON.stringify(msg));
     },
     clear(): void {
       this.canvas.clear();
-      const msg: Message = new Message(MessageType.Clear, undefined, this.$store.state.userId)
+      const msg: Message = new Message(
+        MessageType.Clear,
+        undefined,
+        this.$store.state.userId
+      );
       this.ws.send(JSON.stringify(msg));
     },
     changeBackground(file: File): void {
@@ -112,6 +107,9 @@ export default defineComponent({
         this.$store.state.userId
       );
       this.ws.send(JSON.stringify(msg));
+    },
+    setActiveUsers(activeUsers: Record<string, string>[]) {
+      this.activeUsers = activeUsers;
     },
     resizeCanvas(): void {
       // look up the size the canvas is being displayed

@@ -1,8 +1,8 @@
 import {
   Action,
+  ActiveDrawingAction,
+  ActiveErasingAction,
   ClearAction,
-  DrawingAction,
-  ErasingAction,
   RedoAction,
   SetBackgroundAction,
   UndoAction,
@@ -17,7 +17,6 @@ import {
  * @param {string} userId unique identifier for each client / user
  */
 export class Message {
-
   constructor(
     private readonly type: MessageType,
     private readonly data?: any,
@@ -34,10 +33,10 @@ export class MessageDecoder {
   static parse(message: string): Action {
     const msg: any = JSON.parse(message);
     if (!msg.type) throw new Error("no message type received");
-    else if (msg.type === MessageType.Drawing) {
-      return new DrawingAction(msg.data, msg.timestamp, msg.userId);
-    } else if (msg.type === MessageType.Erasing) {
-      return new ErasingAction(msg.data, msg.timestamp, msg.userId);
+    else if (msg.type === MessageType.ActiveDrawing) {
+      return new ActiveDrawingAction(msg.data, msg.timestamp, msg.userId);
+    } else if (msg.type === MessageType.ActiveErasing) {
+      return new ActiveErasingAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Undo) {
       return new UndoAction(msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Redo) {
@@ -55,8 +54,10 @@ export class MessageDecoder {
 }
 
 export enum MessageType {
-  Drawing = "DRAWING",
-  Erasing = "ERASING",
+  ActiveDrawing = "ACTIVE_DRAWING",
+  CompletedDrawing = "COMPLETED_DRAWING",
+  ActiveErasing = "ACTIVE_ERASING",
+  CompletedErasing = "COMPLETED_ERASING",
   Undo = "UNDO",
   Redo = "REDO",
   SetBackground = "SET_BACKGROUND",

@@ -11,7 +11,10 @@ export class ErasingState extends DrawingState {
         this.y = e.offsetY;
         //init new DrawingAction
         if (this.currentAction == null) {
-            this.currentAction = new ErasingAction(store.state.lineThickness, this.canvas, this.ws);
+            const data: Record<string, number> = {
+                strokeWidth: store.state.lineThickness
+            }
+            this.currentAction = new ErasingAction(data, this.canvas, this.ws);
         }
     }
 }

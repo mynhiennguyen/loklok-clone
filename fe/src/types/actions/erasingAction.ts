@@ -5,12 +5,12 @@ import { Message, MessageType } from "../messages/message";
 
 
 export class ErasingAction extends Action {
-    points: [number, number][] = []; //All points that make up the drawing
+    points: [number, number][] = []; // All points that make up the drawing
     lineWidth: number;
 
-    constructor(lineWidth: number, canvas: CanvasUI, ws: WebSocket) {
+    constructor(data: Record<string, number>, canvas: CanvasUI, ws: WebSocket) {
         super(canvas, ws);
-        this.lineWidth = lineWidth;
+        this.lineWidth = data.lineWidth;
     }
 
     override execute() {
@@ -32,17 +32,13 @@ export class ErasingAction extends Action {
 
         //send via websocket
         const data = { points: [x1, y1, x2, y2], lineWidth: this.lineWidth }
-        const msg: Message = new Message(MessageType.Erasing, data, store.getters.userId)
+        const msg: Message = new Message(MessageType.ActiveErasing, data, store.getters.userId)
         this.ws.send(JSON.stringify(msg))
     }
 
     override saveAction() {
-        const pathObj = {
-            type: 'finishedErasingAction',
-            points: JSON.stringify(this.points),
-            lineWidth: this.lineWidth
-        };
-
-        this.ws.send(JSON.stringify(pathObj));
+        const data = { points: this.points, lineWidth: this.lineWidth }
+        const msg: Message = new Message(MessageType.CompletedErasing, data, store.getters.userId)
+        this.ws.send(JSON.stringify(msg));
     }
 }

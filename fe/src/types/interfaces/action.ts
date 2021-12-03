@@ -12,7 +12,7 @@ export abstract class Action {
     this.ws = ws;
   }
 
-  abstract execute(): void;
+  abstract execute(canvasComponent?: any): void;
   abstract recordAndExecute(
     x1: number,
     y1: number,

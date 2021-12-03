@@ -8,10 +8,10 @@ export class DrawingAction extends Action {
     strokeStyle: string;
     lineWidth: number;
 
-    constructor(strokeStyle: string, lineWidth: number, canvas: CanvasUI, ws: WebSocket){
+    constructor(data: Record<string, string | number>, canvas: CanvasUI, ws: WebSocket){
         super(canvas, ws)
-        this.strokeStyle = strokeStyle;
-        this.lineWidth = lineWidth;
+        this.strokeStyle = data.strokeStyle as string;
+        this.lineWidth = data.lineWidth as number;
     }
 
     override execute(){
@@ -31,19 +31,14 @@ export class DrawingAction extends Action {
 
         //send via websocket
         const data = { points: [x1, y1, x2, y2], strokeStyle: this.strokeStyle, lineWidth: this.lineWidth }
-        const msg: Message = new Message(MessageType.Drawing, data, store.getters.userId)
+        const msg: Message = new Message(MessageType.ActiveDrawing, data, store.getters.userId)
         this.ws.send(JSON.stringify(msg))
     }
 
     override saveAction(){
-        const pathObj = {
-            type: 'finishedDrawingAction',
-            points: JSON.stringify(this.points),
-            strokeStyle: this.strokeStyle,
-            lineWidth: this.lineWidth
-        }
-
-        this.ws.send(JSON.stringify(pathObj))
+        const data = { points: this.points, strokeStyle: this.strokeStyle, lineWidth: this.lineWidth }
+        const msg: Message = new Message(MessageType.CompletedDrawing, data, store.getters.userId)
+        this.ws.send(JSON.stringify(msg))
     }
 }
 

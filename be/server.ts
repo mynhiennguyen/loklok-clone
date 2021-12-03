@@ -35,7 +35,7 @@ wss.on("connection", (ws: any) => {
   broadcastListOfActiveUsers(activeUsers);
   // send current history to client
   // TODO: create message out of this?
-  history.forEach((m) => {
+  history.undoStack.forEach((m) => {
     ws.send(JSON.stringify(m));
   });
 
@@ -69,7 +69,8 @@ const createUser = (ws: any) => {
   return newUser;
 };
 
-const broadcastToClients = (msg: Message) => {
+const broadcastToClients = (msg: Message | undefined) => {
+  if(msg === undefined) return;
   wss.clients.forEach((client: any) => {
     client.send(JSON.stringify(msg));
   });
