@@ -4,14 +4,16 @@ export class HistoryStack {
   undoStack: Action[] = [];
   redoStack: Action[] = [];
 
-  push(action: Action): void {
-    if (action == null) return;
+  pushToHistory(action: Action): void {
+    console.log("pushing");
+    if (action === null) return;
     this.undoStack.push(action);
     this.redoStack = this.redoStack.filter(e => e.userId !== action.userId); // once new Action is added, clear redoStack from this users actions
     //TODO: limit HistoryStack size
   }
 
   undo(userId: string | undefined): void {
+    console.log("undo")
     if(!userId) return;
     // check if the user has any actions in the history
     if (this.undoStack.filter(e => e.userId === userId).length === 0) return;

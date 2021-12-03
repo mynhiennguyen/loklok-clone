@@ -18,7 +18,6 @@ const server = express().listen(PORT, () =>
 const wss = new Server({ server });
 
 // history of drawing actions
-// TODO: create HistoryClass with undo/redo stacks
 const history: HistoryStack = new HistoryStack();
 
 // list of active users
@@ -35,8 +34,8 @@ wss.on("connection", (ws: any) => {
   broadcastListOfActiveUsers(activeUsers);
   // send current history to client
   // TODO: create message out of this?
-  history.undoStack.forEach((m) => {
-    ws.send(JSON.stringify(m));
+  history.undoStack.forEach((m: Action) => {
+    ws.send(JSON.stringify(m.createMessage()));
   });
 
   // handle incoming messages

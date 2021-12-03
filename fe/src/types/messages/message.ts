@@ -40,9 +40,9 @@ export class MessageDecoder {
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ReceiveUserID) {
       return new UserIdAssignmentAction(msg.data, canvas, ws);
-    } else if (msg.type === MessageType.ActiveDrawing) {
+    } else if (msg.type === MessageType.ActiveDrawing || msg.type === MessageType.CompletedDrawing) {
       return new DrawingAction(msg.data, canvas, ws);
-    } else if (msg.type === MessageType.ActiveErasing) {
+    } else if (msg.type === MessageType.ActiveErasing || msg.type === MessageType.CompletedErasing) {
       return new ErasingAction(msg.data, canvas, ws);
     }
     // else if (msg.type === MessageType.SetBackground) {

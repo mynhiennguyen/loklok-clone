@@ -33,7 +33,6 @@ export class DrawingAction extends Action {
         //send via websocket
         const data = { points: [x1, y1, x2, y2], strokeStyle: this.strokeStyle, lineWidth: this.lineWidth }
         const msg: Message = new Message(MessageType.ActiveDrawing, data, store.getters.userId)
-        console.log(JSON.stringify(msg))
         this.ws.send(JSON.stringify(msg))
     }
 

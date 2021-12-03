@@ -25,7 +25,7 @@ export abstract class Action<
   }
 
   pushTo(history: HistoryStack): void {
-    history.push(this);
+    history.pushToHistory(this);
   }
 }
 
@@ -42,7 +42,13 @@ export class CompletedDrawingAction extends Action<Record<string, any>> {
   constructor(data: Record<string, any>, timestamp: Date, userId: string) {
     super(MessageType.CompletedDrawing, data, timestamp, userId);
   }
-  override createMessage(ws?: Object): undefined {
+  override createMessage(ws?: Object): Message | undefined {
+    if(ws) {
+      return undefined;
+    }
+    else {
+      return super.createMessage();
+    }
     // does not need to be broadcasted to other users
     return undefined;
   }

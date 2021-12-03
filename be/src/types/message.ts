@@ -3,6 +3,8 @@ import {
   ActiveDrawingAction,
   ActiveErasingAction,
   ClearAction,
+  CompletedDrawingAction,
+  CompletedErasingAction,
   RedoAction,
   SetBackgroundAction,
   UndoAction,
@@ -39,9 +41,9 @@ export class MessageDecoder {
     } else if (msg.type === MessageType.ActiveErasing) {
       return new ActiveErasingAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.CompletedDrawing) {
-      return new ActiveDrawingAction(msg.data, msg.timestamp, msg.userId);
+      return new CompletedDrawingAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.CompletedErasing) {
-      return new ActiveErasingAction(msg.data, msg.timestamp, msg.userId);
+      return new CompletedErasingAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Undo) {
       return new UndoAction(msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Redo) {
