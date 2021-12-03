@@ -31,11 +31,16 @@ export class Message {
 
 export class MessageDecoder {
   static parse(message: string): Action {
+    console.log(message);
     const msg: any = JSON.parse(message);
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ActiveDrawing) {
       return new ActiveDrawingAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.ActiveErasing) {
+      return new ActiveErasingAction(msg.data, msg.timestamp, msg.userId);
+    } else if (msg.type === MessageType.CompletedDrawing) {
+      return new ActiveDrawingAction(msg.data, msg.timestamp, msg.userId);
+    } else if (msg.type === MessageType.CompletedErasing) {
       return new ActiveErasingAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Undo) {
       return new UndoAction(msg.timestamp, msg.userId);
@@ -48,7 +53,7 @@ export class MessageDecoder {
     } else if (msg.type === MessageType.Clear) {
       return new ClearAction(msg.timestamp, msg.userId);
     } else {
-      throw new Error("invalid message type received");
+      throw new Error(`invalid message type received: ${msg.type}`);
     }
   }
 }

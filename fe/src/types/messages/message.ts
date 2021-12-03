@@ -36,7 +36,6 @@ export class Message {
 
 export class MessageDecoder {
   static parse(message: string, canvas: CanvasUI, ws: WebSocket): Action {
-    console.log(message);
     const msg: any = JSON.parse(message);
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ReceiveUserID) {
