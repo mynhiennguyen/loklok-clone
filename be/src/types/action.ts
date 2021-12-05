@@ -84,8 +84,20 @@ export class UndoAction extends Action {
 }
 
 export class RedoAction extends Action {
+  lastAction: Action | undefined;
+
   constructor(timestamp: Date, userId: string) {
     super(MessageType.Redo, undefined, timestamp, userId);
+  }
+
+  override pushTo(history: HistoryStack): void {
+    // manipulates history instead
+    this.lastAction = history.redo(this.userId);
+  }
+
+  override createMessage(): Message | undefined {
+    if(!this.lastAction) return undefined;
+    return this.lastAction!.createMessage();
   }
 }
 

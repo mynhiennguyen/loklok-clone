@@ -19,7 +19,6 @@ export enum MessageType {
   ActiveUsersList = "LIST_OF_ACTIVE_USERS",
   UserSelectedColor = "USER_SELECTED_COLOR",
   Clear = "CLEAR",
-  //TODO: MessageSequence
 }
 
 export class Message {

@@ -23,15 +23,16 @@ export class HistoryStack {
     this.redoStack.push(lastAction[0]);
   }
 
-  redo(userId: string | undefined): void {
-    if (!userId) return;
+  redo(userId: string | undefined): Action | undefined {
+    if (!userId) return undefined;
     // check if the user has any actions in redoStack
-    if (this.redoStack.filter((e) => e.userId === userId).length === 0) return;
+    if (this.redoStack.filter((e) => e.userId === userId).length === 0) return undefined;
     // retrieve the users latest undone action, remove it from redoStack and push it to undoStack
     const lastActionIndex: number = this.redoStack
       .map((e) => e.userId)
       .lastIndexOf(userId);
     const lastAction: Action[] = this.redoStack.splice(lastActionIndex, 1);
     this.undoStack.push(lastAction[0]);
+    return lastAction[0];
   }
 }
