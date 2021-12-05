@@ -19,7 +19,6 @@ import { Action } from "../types/interfaces/action";
 import { InputStateManager } from "../types/inputStateManager";
 import { CanvasUI } from "../types/interfaces/canvas";
 import { Canvas2D } from "../types/canvas2D";
-import { ClearAction } from "../types/actions/clearAction";
 import {
   Message,
   MessageDecoder,
@@ -110,6 +109,9 @@ export default defineComponent({
     },
     setActiveUsers(activeUsers: Record<string, string>[]) {
       this.activeUsers = activeUsers;
+    },
+    setIsUndoRedoActive(isUndoActive: boolean, isRedoActive: boolean) {
+      this.$emit("isUndoRedoActive", isUndoActive, isRedoActive)
     },
     resizeCanvas(): void {
       // look up the size the canvas is being displayed

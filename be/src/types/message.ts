@@ -71,4 +71,5 @@ export enum MessageType {
   AssignUserId = "ASSIGN_USERID",
   ActiveUsersList = "LIST_OF_ACTIVE_USERS",
   Clear = "CLEAR",
+  UndoRedoAvailabilties = "UNDO_REDO_AVAILABILITIES",
 }

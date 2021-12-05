@@ -2,12 +2,14 @@
   <div id="app-container">
     <ToolBar
       @undo="undo"
+      :isUndoActive="isUndoActive"
       @redo="redo"
+      :isRedoActive="isRedoActive"
       @clear="clear"
       @changeBackground="changeBackground"
       @changeLineColor="changeLineColor"
     ></ToolBar>
-    <Canvas ref="canvas"></Canvas>
+    <Canvas ref="canvas" @isUndoRedoActive="updateIsUndoRedoActive"></Canvas>
   </div>
 </template>
 
@@ -22,6 +24,12 @@ export default defineComponent({
   components: {
     Canvas,
     ToolBar,
+  },
+  data() {
+    return {
+      isUndoActive: false,
+      isRedoActive: false
+    }
   },
   methods: {
     undo(): void {
@@ -39,6 +47,10 @@ export default defineComponent({
     changeLineColor(color: Color): void {
       (this.$refs.canvas as typeof Canvas).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
     },
+    updateIsUndoRedoActive(isUndoActive: boolean, isRedoActive: boolean) {
+      this.isUndoActive = isUndoActive;
+      this.isRedoActive = isRedoActive;
+    }
   },
 });
 </script>

@@ -2,7 +2,7 @@ import { Action, UndoAction } from "./src/types/action";
 import { HistoryStack } from "./src/types/history";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
-import { uuid } from "./src/utils/utils";
+import { updateUndoRedoAvailabilities, uuid } from "./src/utils/utils";
 
 const express = require("express");
 const { Server } = require("ws");
@@ -18,7 +18,7 @@ const server = express().listen(PORT, () =>
 const wss = new Server({ server });
 
 // history of drawing actions
-const history: HistoryStack = new HistoryStack();
+const history: HistoryStack = new HistoryStack(updateUndoRedoAvailabilities);
 
 // list of active users
 export const activeUsers = new Map<Object, User>();

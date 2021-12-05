@@ -4,11 +4,14 @@ export class HistoryStack {
   undoStack: Action[] = [];
   redoStack: Action[] = [];
 
+  constructor(private readonly updateUndoRedoAvailabilitiesForUser: Function) {}
+
   push(action: Action): void {
     if (action === null) return;
     this.undoStack.push(action);
     this.redoStack = this.redoStack.filter((e) => e.userId !== action.userId); // once new Action is added, clear redoStack from this users actions
     //TODO: limit HistoryStack size
+    this.checkUndoRedoAvailabilities(action.userId!);
   }
 
   undo(userId: string | undefined): void {
@@ -21,6 +24,8 @@ export class HistoryStack {
       .lastIndexOf(userId);
     const lastAction: Action[] = this.undoStack.splice(lastActionIndex, 1);
     this.redoStack.push(lastAction[0]);
+
+    this.checkUndoRedoAvailabilities(userId);
   }
 
   redo(userId: string | undefined): Action | undefined {
@@ -33,6 +38,18 @@ export class HistoryStack {
       .lastIndexOf(userId);
     const lastAction: Action[] = this.redoStack.splice(lastActionIndex, 1);
     this.undoStack.push(lastAction[0]);
+
+    this.checkUndoRedoAvailabilities(userId);
+
     return lastAction[0];
+  }
+
+  private checkUndoRedoAvailabilities(userId: string) {
+    const isUndoAvailable: boolean = this.undoStack.filter((e) => e.userId === userId).length > 0;
+    const isRedoAvailable: boolean = this.redoStack.filter((e) => e.userId === userId).length > 0;
+
+    console.log(isUndoAvailable, isRedoAvailable)
+
+    this.updateUndoRedoAvailabilitiesForUser(userId, isUndoAvailable, isRedoAvailable);
   }
 }

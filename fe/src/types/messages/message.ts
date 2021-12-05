@@ -6,6 +6,7 @@ import { Action } from "../interfaces/action";
 import { CanvasUI } from "../interfaces/canvas";
 import { store } from "../../store";
 import { UserIdAssignmentAction } from "../actions/userIdAssignmentAction";
+import { UndoRedoAvailabilitiesAction } from "../actions/undoRedoAvailabilitiesAction";
 
 export enum MessageType {
   ActiveDrawing = "ACTIVE_DRAWING",
@@ -19,6 +20,7 @@ export enum MessageType {
   ActiveUsersList = "LIST_OF_ACTIVE_USERS",
   UserSelectedColor = "USER_SELECTED_COLOR",
   Clear = "CLEAR",
+  UndoRedoAvailabilities = "UNDO_REDO_AVAILABILITIES"
 }
 
 export class Message {
@@ -63,7 +65,12 @@ export class MessageDecoder {
       msg.type === MessageType.Undo
     ) {
       return new ClearAction(canvas, ws);
-    } else {
+    } 
+    else if (msg.type === MessageType.UndoRedoAvailabilities) {
+      console.log("update received")
+      return new UndoRedoAvailabilitiesAction(msg.data, canvas, ws);
+    }
+    else {
       throw new Error(`invalid message type received: ${msg.type}`);
     }
   }
