@@ -32,14 +32,14 @@ export class ErasingAction extends Action {
         this.canvas.eraseLine(x1, y1, x2, y2, this.lineWidth);
 
         //send via websocket
-        const data = { points: [x1, y1, x2, y2], lineWidth: this.lineWidth }
-        const msg: Message = new Message(MessageType.ActiveErasing, data, store.getters.userId)
+        const data = { points: [[x1, y1],[x2, y2]], lineWidth: this.lineWidth }
+        const msg: Message = new Message(MessageType.ActiveErasing, data, store.state.userId)
         this.ws.send(JSON.stringify(msg))
     }
 
     override saveAction() {
         const data = { points: this.points, lineWidth: this.lineWidth }
-        const msg: Message = new Message(MessageType.CompletedErasing, data, store.getters.userId)
+        const msg: Message = new Message(MessageType.CompletedErasing, data, store.state.userId)
         this.ws.send(JSON.stringify(msg));
     }
 }

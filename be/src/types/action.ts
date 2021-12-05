@@ -25,7 +25,7 @@ export abstract class Action<
   }
 
   pushTo(history: HistoryStack): void {
-    history.pushToHistory(this);
+    history.push(this);
   }
 }
 
@@ -43,14 +43,13 @@ export class CompletedDrawingAction extends Action<Record<string, any>> {
     super(MessageType.CompletedDrawing, data, timestamp, userId);
   }
   override createMessage(ws?: Object): Message | undefined {
-    if(ws) {
+    if (ws) {
+      // when action is redirected to all other users
       return undefined;
-    }
-    else {
+    } else {
+      // when action is part of history-broadcast on new connection 😅. TODO: refactor.
       return super.createMessage();
     }
-    // does not need to be broadcasted to other users
-    return undefined;
   }
 }
 
@@ -82,12 +81,6 @@ export class UndoAction extends Action {
     // manipulates history instead
     history.undo(this.userId);
   }
-
-  override createMessage(ws: WebSocket): undefined {
-    //TODO: trigger a clear and redraw for all other users
-    //TODO: create MessageSequence?
-    return undefined;
-  }
 }
 
 export class RedoAction extends Action {
@@ -113,7 +106,7 @@ export class UserSelectedColorAction extends Action<Color> {
     super(MessageType.UserSelectedColor, data, timestamp, userId);
   }
 
-  override createMessage(ws: any) {
+  override createMessage(ws: any): Message {
     if (!activeUsers.get(ws)) throw Error("User not found");
     const user: User = activeUsers.get(ws)!;
     user.setColor(this.data || Color.BLACK);

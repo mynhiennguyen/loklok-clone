@@ -1,4 +1,4 @@
-import { Action } from "./src/types/action";
+import { Action, UndoAction } from "./src/types/action";
 import { HistoryStack } from "./src/types/history";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
@@ -42,7 +42,7 @@ wss.on("connection", (ws: any) => {
   ws.on("message", (msg: any) => {
     const action: Action = MessageDecoder.parse(msg);
     action.pushTo(history);
-    broadcastToClients(action.createMessage(ws)) // TODO: remove ws as parameter if possible
+    broadcastToClients(action.createMessage(ws)); // TODO: remove ws as parameter if possible
   });
 
   ws.on("close", () => {
@@ -69,8 +69,14 @@ const createUser = (ws: any) => {
 };
 
 const broadcastToClients = (msg: Message | undefined) => {
-  if(msg === undefined) return;
+  if (msg === undefined) return;
   wss.clients.forEach((client: any) => {
     client.send(JSON.stringify(msg));
+
+    if (msg.type === MessageType.Undo) {
+      history.undoStack.forEach((m: Action) => {
+        client.send(JSON.stringify(m.createMessage()));
+      });
+    }
   });
-}
+};

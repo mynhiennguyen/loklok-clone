@@ -20,7 +20,7 @@ import {
  */
 export class Message {
   constructor(
-    private readonly type: MessageType,
+    public readonly type: MessageType,
     private readonly data?: any,
     private readonly timestamp?: Date,
     private readonly userId?: string
@@ -33,7 +33,6 @@ export class Message {
 
 export class MessageDecoder {
   static parse(message: string): Action {
-    console.log(message);
     const msg: any = JSON.parse(message);
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ActiveDrawing) {

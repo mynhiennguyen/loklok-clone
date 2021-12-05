@@ -40,9 +40,15 @@ export class MessageDecoder {
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ReceiveUserID) {
       return new UserIdAssignmentAction(msg.data, canvas, ws);
-    } else if (msg.type === MessageType.ActiveDrawing || msg.type === MessageType.CompletedDrawing) {
+    } else if (
+      msg.type === MessageType.ActiveDrawing ||
+      msg.type === MessageType.CompletedDrawing
+    ) {
       return new DrawingAction(msg.data, canvas, ws);
-    } else if (msg.type === MessageType.ActiveErasing || msg.type === MessageType.CompletedErasing) {
+    } else if (
+      msg.type === MessageType.ActiveErasing ||
+      msg.type === MessageType.CompletedErasing
+    ) {
       return new ErasingAction(msg.data, canvas, ws);
     }
     // else if (msg.type === MessageType.SetBackground) {
@@ -53,7 +59,10 @@ export class MessageDecoder {
       msg.type === MessageType.ActiveUsersList
     ) {
       return new UserSelectedColorAction(msg.data, canvas, ws);
-    } else if (msg.type === MessageType.Clear) {
+    } else if (
+      msg.type === MessageType.Clear ||
+      msg.type === MessageType.Undo
+    ) {
       return new ClearAction(canvas, ws);
     } else {
       throw new Error(`invalid message type received: ${msg.type}`);
