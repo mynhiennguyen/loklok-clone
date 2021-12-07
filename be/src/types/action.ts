@@ -66,9 +66,14 @@ export class CompletedErasingAction extends Action<Record<string, any>> {
   constructor(data: Record<string, any>, timestamp: Date, userId: string) {
     super(MessageType.CompletedErasing, data, timestamp, userId);
   }
-  override createMessage(ws?: Object): undefined {
-    // does not need to be broadcasted to other users
-    return undefined;
+  override createMessage(ws?: Object): Message | undefined {
+    if (ws) {
+      // when action is redirected to all other users
+      return undefined;
+    } else {
+      // when action is part of history-broadcast on new connection 😅. TODO: refactor.
+      return super.createMessage();
+    }
   }
 }
 

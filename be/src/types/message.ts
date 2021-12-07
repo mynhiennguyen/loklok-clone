@@ -53,7 +53,8 @@ export class MessageDecoder {
       return new UserSelectedColorAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Clear) {
       return new ClearAction(msg.timestamp, msg.userId);
-    } else {
+    } 
+    else {
       throw new Error(`invalid message type received: ${msg.type}`);
     }
   }

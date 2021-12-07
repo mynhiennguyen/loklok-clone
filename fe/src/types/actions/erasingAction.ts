@@ -11,12 +11,12 @@ export class ErasingAction extends Action {
     constructor(data: Record<string, any>, canvas: CanvasUI, ws: WebSocket) {
         super(canvas, ws);
         this.points = data.points ?? [] as [number, number][];
-        this.lineWidth = data.lineWidth;
+        this.lineWidth = data.lineWidth as number;
     }
 
     override execute() {
         //draws all segments according to recorded points
-        for (let i = 0; i < this.points.length - 2; i++) {
+        for (let i = 0; i <= this.points.length - 2; i++) {
             this.canvas.eraseLine(this.points[i][0], this.points[i][1], this.points[i + 1][0], this.points[i + 1][1], this.lineWidth);
         }
     }

@@ -18,5 +18,5 @@ export interface CanvasUI {
     lineWidth: number
   ): void;
   clear(): void;
-  changeBackground(file: File): void;
+  changeBackground(file: string): void;
 }

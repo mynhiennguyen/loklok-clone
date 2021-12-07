@@ -1,14 +1,20 @@
 <template>
   <div>
     <canvas
-      id="canvas"
-      @pointerdown="handlePointerDown"
-      @pointermove="handlePointerMove"
-      @pointerup="handlePointerUp"
+      id="backgroundCanvas"
+      class="canvas"
       :style="{ background: backgroundImage }"
     >
     </canvas>
-    <active-users-display :activeUsers="activeUsers"></active-users-display>
+    <canvas
+      id="mainCanvas"
+      class="canvas"
+      @pointerdown="handlePointerDown"
+      @pointermove="handlePointerMove"
+      @pointerup="handlePointerUp"
+    >
+    </canvas>
+    <active-users-display id="activeUsers" :activeUsers="activeUsers"></active-users-display>
   </div>
 </template>
 
@@ -36,6 +42,7 @@ export default defineComponent({
   data() {
     return {
       canvas: (null as unknown) as CanvasUI,
+      backgroundCanvas: (null as unknown) as CanvasUI,
       inputStateManager: (null as unknown) as InputStateManager,
       backgroundImage: "silver",
       ws: (null as unknown) as WebSocket,
@@ -54,7 +61,8 @@ export default defineComponent({
       this.ws = new WebSocket("wss://loklok-clone.herokuapp.com/");
     }
 
-    this.canvas = this.initCanvas();
+    this.canvas = this.initCanvas("mainCanvas");
+    this.backgroundCanvas = this.initCanvas("backgroundCanvas");
     this.inputStateManager = this.initInputStateManager(this.canvas, this.ws);
 
     // Websocket commmunication
@@ -62,12 +70,15 @@ export default defineComponent({
       const action: Action = MessageDecoder.parse(
         msg.data,
         this.canvas,
+        this.backgroundCanvas,
         this.ws
       );
       action.execute(this);
     };
 
-    window.addEventListener("resize", this.resizeCanvas); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
+    window.addEventListener("resize", () => {
+      this.resizeCanvas("mainCanvas");
+      this.resizeCanvas("backgroundCanvas")}); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
     undo(): void {
@@ -96,7 +107,22 @@ export default defineComponent({
       this.ws.send(JSON.stringify(msg));
     },
     changeBackground(file: File): void {
-      this.canvas.changeBackground(file);
+      // sets local background
+      this.backgroundCanvas.changeBackground(URL.createObjectURL(file));
+
+      // send new background to other users
+      new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      }).then((res) => {
+        const msg: Message = new Message(
+          MessageType.SetBackground,
+          res,
+          this.$store.state.userId
+        );
+        this.ws.send(JSON.stringify(msg));
+      });
     },
     changeLineColor(color: Color): void {
       // notify other users of color change via WS
@@ -111,12 +137,12 @@ export default defineComponent({
       this.activeUsers = activeUsers;
     },
     setIsUndoRedoActive(isUndoActive: boolean, isRedoActive: boolean) {
-      this.$emit("isUndoRedoActive", isUndoActive, isRedoActive)
+      this.$emit("isUndoRedoActive", isUndoActive, isRedoActive);
     },
-    resizeCanvas(): void {
+    resizeCanvas(id: string): void {
       // look up the size the canvas is being displayed
       const canvas: HTMLCanvasElement = document.getElementById(
-        "canvas"
+        id
       ) as HTMLCanvasElement;
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
@@ -136,12 +162,12 @@ export default defineComponent({
     handlePointerUp(ev: PointerEvent) {
       const finishedAction: Action = this.inputStateManager.endAction(ev);
     },
-    initCanvas(): CanvasUI {
-      const canvas: HTMLElement = document.getElementById("canvas")!;
+    initCanvas(id: string): CanvasUI {
+      const canvas: HTMLElement = document.getElementById(id)!;
       const context: CanvasRenderingContext2D = (canvas as HTMLCanvasElement).getContext(
         "2d"
       )!;
-      this.resizeCanvas(); //sets height and width of canvas
+      this.resizeCanvas(id); //sets height and width of canvas
       return new Canvas2D(context);
     },
     initInputStateManager(canvas: CanvasUI, ws: WebSocket): InputStateManager {
@@ -153,7 +179,7 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#canvas {
+.canvas {
   position: absolute;
   top: 0;
   left: 0;
@@ -165,5 +191,14 @@ export default defineComponent({
   overflow-y: hidden;
   touch-action: none;
   background-size: contain;
+}
+#mainCanvas {
+  z-index: 1;
+}
+#backgroundCanvas {
+  z-index: 0;
+}
+#activeUsers {
+  z-index: 2;
 }
 </style>

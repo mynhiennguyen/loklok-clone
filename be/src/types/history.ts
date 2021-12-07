@@ -48,8 +48,6 @@ export class HistoryStack {
     const isUndoAvailable: boolean = this.undoStack.filter((e) => e.userId === userId).length > 0;
     const isRedoAvailable: boolean = this.redoStack.filter((e) => e.userId === userId).length > 0;
 
-    console.log(isUndoAvailable, isRedoAvailable)
-
     this.updateUndoRedoAvailabilitiesForUser(userId, isUndoAvailable, isRedoAvailable);
   }
 }
