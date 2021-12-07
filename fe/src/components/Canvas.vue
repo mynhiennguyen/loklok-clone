@@ -14,7 +14,10 @@
       @pointerup="handlePointerUp"
     >
     </canvas>
-    <active-users-display id="activeUsers" :activeUsers="activeUsers"></active-users-display>
+    <active-users-display
+      id="activeUsers"
+      :activeUsers="activeUsers"
+    ></active-users-display>
   </div>
 </template>
 
@@ -78,7 +81,8 @@ export default defineComponent({
 
     window.addEventListener("resize", () => {
       this.resizeCanvas("mainCanvas");
-      this.resizeCanvas("backgroundCanvas")}); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
+      this.resizeCanvas("backgroundCanvas");
+    }); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
   },
   methods: {
     undo(): void {

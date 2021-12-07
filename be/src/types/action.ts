@@ -101,7 +101,7 @@ export class RedoAction extends Action {
   }
 
   override createMessage(): Message | undefined {
-    if(!this.lastAction) return undefined;
+    if (!this.lastAction) return undefined;
     return this.lastAction!.createMessage();
   }
 }
