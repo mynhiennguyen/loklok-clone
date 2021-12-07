@@ -67,7 +67,6 @@ export class MessageDecoder {
       return new ClearAction(canvas, ws);
     } 
     else if (msg.type === MessageType.UndoRedoAvailabilities) {
-      console.log("update received")
       return new UndoRedoAvailabilitiesAction(msg.data, canvas, ws);
     }
     else {

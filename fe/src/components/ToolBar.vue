@@ -3,6 +3,7 @@
     <tool-bar-dropdown class="toolbar__button" :items="tools"></tool-bar-dropdown>
     <tool-bar-dropdown class="toolbar__button" :items="colors" rounded></tool-bar-dropdown>
     <tool-bar-dropdown class="toolbar__button" :items="width"></tool-bar-dropdown>
+    <!-- Undo icon as inline SVG -->
     <div
       class="toolbar__button"
       :class="{ 'toolbar__button--disabled': !isUndoActive }"
@@ -31,6 +32,7 @@
         </g>
       </svg>
     </div>
+    <!-- Redo icon as inline SVG -->
     <div class="toolbar__button" @click="redo"
     :class="{ 'toolbar__button--disabled': !isRedoActive }">
       <svg
