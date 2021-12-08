@@ -23,19 +23,8 @@ const history: HistoryStack = new HistoryStack(updateUndoRedoAvailabilities);
 export const activeUsers = new Map<WebSocket, User>();
 
 // handle connections
-wss.on("connection", (ws: WebSocket) => {
-  console.log("New client connected");
-  // TODO: refactor to handleNewClientConnection()
-  // create user and assign ID
-  const newUser: User = createUser(ws);
-  // add new user to list of active users and broadcast list to all other users
-  activeUsers.set(ws, newUser);
-  broadcastListOfActiveUsers(activeUsers);
-  // send current history to client
-  // TODO: create message out of this?
-  history.undoStack.forEach((m: Action) => {
-    ws.send(JSON.stringify(m.createMessage()));
-  });
+wss.on("connection", (ws: WebSocket) => {;
+  handleNewClientConnection(ws);
 
   // handle incoming messages
   ws.on("message", (msg: string) => {
@@ -51,6 +40,26 @@ wss.on("connection", (ws: WebSocket) => {
   });
 });
 
+const handleNewClientConnection = ((ws: WebSocket) => {
+  // create user and assign ID
+  const newUser: User = createUser(ws);
+  // add new user to list of active users and broadcast list to all other users
+  activeUsers.set(ws, newUser);
+  broadcastListOfActiveUsers(activeUsers);
+  // send current history to client
+  // TODO: create message out of this?
+  history.undoStack.forEach((m: Action) => {
+    ws.send(JSON.stringify(m.createMessage()));
+  });
+})
+
+const createUser = (ws: WebSocket) => {
+  const newUser: User = new User();
+  const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
+  ws.send(JSON.stringify(assignIdMessage));
+  return newUser;
+};
+
 const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
   const msg = new Message(MessageType.ActiveUsersList, [
     ...activeUsers.values(),
@@ -58,13 +67,6 @@ const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
   wss.clients.forEach((client: WebSocket) => {
     client.send(JSON.stringify(msg));
   });
-};
-
-const createUser = (ws: WebSocket) => {
-  const newUser: User = new User();
-  const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
-  ws.send(JSON.stringify(assignIdMessage));
-  return newUser;
 };
 
 const broadcastToClients = (msg: Message | undefined) => {
