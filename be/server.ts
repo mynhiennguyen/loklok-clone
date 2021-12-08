@@ -1,11 +1,10 @@
-import { Action, UndoAction } from "./src/types/action";
+import { Action } from "./src/types/action";
 import { HistoryStack } from "./src/types/history";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
-import { updateUndoRedoAvailabilities, uuid } from "./src/utils/utils";
-
-const express = require("express");
-const { Server } = require("ws");
+import { updateUndoRedoAvailabilities } from "./src/utils/utils";
+import  WebSocket  from "ws";
+import express from 'express';
 
 const PORT = process.env.PORT || 3000;
 
@@ -15,16 +14,16 @@ const server = express().listen(PORT, () =>
 );
 
 // create WebSocket server
-const wss = new Server({ server });
+const wss = new WebSocket.Server({ server });
 
 // history of drawing actions
 const history: HistoryStack = new HistoryStack(updateUndoRedoAvailabilities);
 
 // list of active users
-export const activeUsers = new Map<Object, User>();
+export const activeUsers = new Map<WebSocket, User>();
 
 // handle connections
-wss.on("connection", (ws: any) => {
+wss.on("connection", (ws: WebSocket) => {
   console.log("New client connected");
   // TODO: refactor to handleNewClientConnection()
   // create user and assign ID
@@ -39,7 +38,7 @@ wss.on("connection", (ws: any) => {
   });
 
   // handle incoming messages
-  ws.on("message", (msg: any) => {
+  ws.on("message", (msg: string) => {
     const action: Action = MessageDecoder.parse(msg);
     action.pushTo(history);
     broadcastToClients(action.createMessage(ws)); // TODO: remove ws as parameter if possible
@@ -56,12 +55,12 @@ const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
   const msg = new Message(MessageType.ActiveUsersList, [
     ...activeUsers.values(),
   ]);
-  wss.clients.forEach((client: any) => {
+  wss.clients.forEach((client: WebSocket) => {
     client.send(JSON.stringify(msg));
   });
 };
 
-const createUser = (ws: any) => {
+const createUser = (ws: WebSocket) => {
   const newUser: User = new User();
   const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
   ws.send(JSON.stringify(assignIdMessage));
@@ -70,7 +69,7 @@ const createUser = (ws: any) => {
 
 const broadcastToClients = (msg: Message | undefined) => {
   if (msg === undefined) return;
-  wss.clients.forEach((client: any) => {
+  wss.clients.forEach((client: WebSocket) => {
     client.send(JSON.stringify(msg));
 
     if (msg.type === MessageType.Undo) {

@@ -33,7 +33,7 @@ export class Message {
 
 export class MessageDecoder {
   static parse(message: string): Action {
-    const msg: any = JSON.parse(message);
+    const msg: Record<string,any> = JSON.parse(message);
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ActiveDrawing) {
       return new ActiveDrawingAction(msg.data, msg.timestamp, msg.userId);

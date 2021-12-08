@@ -2,6 +2,7 @@ import { activeUsers } from "../../server";
 import { HistoryStack } from "./history";
 import { Message, MessageType } from "./message";
 import { Color, User } from "./user";
+import WebSocket from "ws";
 
 /**
  * Abstract class for any Action (or message) sent between Client and Server via Websocket
@@ -20,7 +21,7 @@ export abstract class Action<
     public readonly userId?: string
   ) {}
 
-  createMessage(ws?: Object): Message | undefined {
+  createMessage(ws?: WebSocket): Message | undefined {
     return new Message(this.type, this.data, this.timestamp, this.userId);
   }
 
@@ -42,7 +43,7 @@ export class CompletedDrawingAction extends Action<Record<string, any>> {
   constructor(data: Record<string, any>, timestamp: Date, userId: string) {
     super(MessageType.CompletedDrawing, data, timestamp, userId);
   }
-  override createMessage(ws?: Object): Message | undefined {
+  override createMessage(ws?: WebSocket): Message | undefined {
     if (ws) {
       // when action is redirected to all other users
       return undefined;
@@ -66,7 +67,7 @@ export class CompletedErasingAction extends Action<Record<string, any>> {
   constructor(data: Record<string, any>, timestamp: Date, userId: string) {
     super(MessageType.CompletedErasing, data, timestamp, userId);
   }
-  override createMessage(ws?: Object): Message | undefined {
+  override createMessage(ws?: WebSocket): Message | undefined {
     if (ws) {
       // when action is redirected to all other users
       return undefined;
@@ -123,7 +124,7 @@ export class UserSelectedColorAction extends Action<Color> {
     super(MessageType.UserSelectedColor, data, timestamp, userId);
   }
 
-  override createMessage(ws: any): Message {
+  override createMessage(ws: WebSocket): Message {
     if (!activeUsers.get(ws)) throw Error("User not found");
     const user: User = activeUsers.get(ws)!;
     user.setColor(this.data || Color.BLACK);
