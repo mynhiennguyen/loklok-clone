@@ -1,8 +1,10 @@
 import {
   Action,
+  ActiveDrawingAction,
+  ActiveErasingAction,
   ClearAction,
-  DrawingAction,
-  ErasingAction,
+  CompletedDrawingAction,
+  CompletedErasingAction,
   RedoAction,
   SetBackgroundAction,
   UndoAction,
@@ -17,17 +19,12 @@ import {
  * @param {string} userId unique identifier for each client / user
  */
 export class Message {
-  type: string;
-  data?: Object;
-  timestamp?: Date;
-  userId?: string;
-
-  constructor(type: string, data?: Object, timestamp?: Date, userId?: string) {
-    this.type = type;
-    this.data = data;
-    this.timestamp = timestamp;
-    this.userId = userId;
-  }
+  constructor(
+    public readonly type: MessageType,
+    private readonly data?: any,
+    private readonly timestamp?: Date,
+    private readonly userId?: string
+  ) {}
 }
 
 /**
@@ -36,12 +33,16 @@ export class Message {
 
 export class MessageDecoder {
   static parse(message: string): Action {
-    const msg: any = JSON.parse(message);
+    const msg: Record<string,any> = JSON.parse(message);
     if (!msg.type) throw new Error("no message type received");
-    else if (msg.type === MessageType.Drawing) {
-      return new DrawingAction(msg.data, msg.timestamp, msg.userId);
-    } else if (msg.type === MessageType.Erasing) {
-      return new ErasingAction(msg.data, msg.timestamp, msg.userId);
+    else if (msg.type === MessageType.ActiveDrawing) {
+      return new ActiveDrawingAction(msg.data, msg.timestamp, msg.userId);
+    } else if (msg.type === MessageType.ActiveErasing) {
+      return new ActiveErasingAction(msg.data, msg.timestamp, msg.userId);
+    } else if (msg.type === MessageType.CompletedDrawing) {
+      return new CompletedDrawingAction(msg.data, msg.timestamp, msg.userId);
+    } else if (msg.type === MessageType.CompletedErasing) {
+      return new CompletedErasingAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Undo) {
       return new UndoAction(msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Redo) {
@@ -52,15 +53,18 @@ export class MessageDecoder {
       return new UserSelectedColorAction(msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Clear) {
       return new ClearAction(msg.timestamp, msg.userId);
-    } else {
-      throw new Error("invalid message type received");
+    } 
+    else {
+      throw new Error(`invalid message type received: ${msg.type}`);
     }
   }
 }
 
 export enum MessageType {
-  Drawing = "DRAWING",
-  Erasing = "ERASING",
+  ActiveDrawing = "ACTIVE_DRAWING",
+  CompletedDrawing = "COMPLETED_DRAWING",
+  ActiveErasing = "ACTIVE_ERASING",
+  CompletedErasing = "COMPLETED_ERASING",
   Undo = "UNDO",
   Redo = "REDO",
   SetBackground = "SET_BACKGROUND",
@@ -68,4 +72,5 @@ export enum MessageType {
   AssignUserId = "ASSIGN_USERID",
   ActiveUsersList = "LIST_OF_ACTIVE_USERS",
   Clear = "CLEAR",
+  UndoRedoAvailabilties = "UNDO_REDO_AVAILABILITIES",
 }

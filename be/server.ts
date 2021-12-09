@@ -1,10 +1,10 @@
 import { Action } from "./src/types/action";
+import { HistoryStack } from "./src/types/history";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
-import { uuid } from "./src/utils/utils";
-
-const express = require("express");
-const { Server } = require("ws");
+import { updateUndoRedoAvailabilities } from "./src/utils/utils";
+import  WebSocket  from "ws";
+import express from 'express';
 
 const PORT = process.env.PORT || 3000;
 
@@ -14,36 +14,23 @@ const server = express().listen(PORT, () =>
 );
 
 // create WebSocket server
-const wss = new Server({ server });
+const wss = new WebSocket.Server({ server });
 
 // history of drawing actions
-const history: Action[] = [];
+const history: HistoryStack = new HistoryStack(updateUndoRedoAvailabilities);
 
 // list of active users
-export const activeUsers = new Map<Object, User>();
+export const activeUsers = new Map<WebSocket, User>();
 
 // handle connections
-wss.on("connection", (ws: any) => {
-  console.log("New client connected");
-  // create user and assign ID
-  const newUser: User = createUser(ws);
-  // add new user to list of active users and broadcast list to all other users
-  activeUsers.set(ws, newUser);
-  broadcastListOfActiveUsers(activeUsers);
-  // send current history to client
-  history.forEach((m) => {
-    ws.send(JSON.stringify(m));
-  });
+wss.on("connection", (ws: WebSocket) => {;
+  handleNewClientConnection(ws);
 
   // handle incoming messages
-  ws.on("message", (msg: any) => {
+  ws.on("message", (msg: string) => {
     const action: Action = MessageDecoder.parse(msg);
     action.pushTo(history);
-    wss.clients.forEach((client: any) => {
-      // broadcast action to all other clients
-      const msg: Message = action.createMessage(ws);
-      client.send(JSON.stringify(msg));
-    });
+    broadcastToClients(action.createMessage(ws)); // TODO: remove ws as parameter if possible
   });
 
   ws.on("close", () => {
@@ -53,18 +40,44 @@ wss.on("connection", (ws: any) => {
   });
 });
 
-const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
-  const msg = new Message(MessageType.ActiveUsersList, [
-    ...activeUsers.values(),
-  ]);
-  wss.clients.forEach((client: any) => {
-    client.send(JSON.stringify(msg));
+const handleNewClientConnection = ((ws: WebSocket) => {
+  // create user and assign ID
+  const newUser: User = createUser(ws);
+  // add new user to list of active users and broadcast list to all other users
+  activeUsers.set(ws, newUser);
+  broadcastListOfActiveUsers(activeUsers);
+  // send current history to client
+  // TODO: create message out of this?
+  history.undoStack.forEach((m: Action) => {
+    ws.send(JSON.stringify(m.createMessage()));
   });
-};
+})
 
-const createUser = (ws: any) => {
+const createUser = (ws: WebSocket) => {
   const newUser: User = new User();
   const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
   ws.send(JSON.stringify(assignIdMessage));
   return newUser;
+};
+
+const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
+  const msg = new Message(MessageType.ActiveUsersList, [
+    ...activeUsers.values(),
+  ]);
+  wss.clients.forEach((client: WebSocket) => {
+    client.send(JSON.stringify(msg));
+  });
+};
+
+const broadcastToClients = (msg: Message | undefined) => {
+  if (msg === undefined) return;
+  wss.clients.forEach((client: WebSocket) => {
+    client.send(JSON.stringify(msg));
+
+    if (msg.type === MessageType.Undo) {
+      history.undoStack.forEach((m: Action) => {
+        client.send(JSON.stringify(m.createMessage()));
+      });
+    }
+  });
 };
