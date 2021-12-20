@@ -82,6 +82,9 @@ export default defineComponent({
       this.resizeCanvas(id); //sets height and width of canvas
       return new Canvas2D(context);
     },
+    setActiveUsers(activeUsers: Record<string, string>[]) {
+      // do nothing
+    },
   },
 });
 </script>
