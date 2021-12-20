@@ -9,20 +9,20 @@
       @changeBackground="changeBackground"
       @changeLineColor="changeLineColor"
     ></ToolBar>
-    <Canvas ref="canvas" @isUndoRedoActive="updateIsUndoRedoActive"></Canvas>
+    <EditingCanvas ref="canvas" @isUndoRedoActive="updateIsUndoRedoActive"></EditingCanvas>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Canvas from "./components/Canvas.vue";
+import EditingCanvas from "./components/EditingCanvas.vue";
 import ToolBar from "./components/ToolBar.vue";
 import { Color } from "./options";
 
 export default defineComponent({
   name: "App",
   components: {
-    Canvas,
+    EditingCanvas,
     ToolBar,
   },
   data() {
@@ -33,19 +33,19 @@ export default defineComponent({
   },
   methods: {
     undo(): void {
-      (this.$refs.canvas as typeof Canvas).undo();
+      (this.$refs.canvas as typeof EditingCanvas).undo();
     },
     redo(): void {
-      (this.$refs.canvas as typeof Canvas).redo();
+      (this.$refs.canvas as typeof EditingCanvas).redo();
     },
     clear(): void {
-      (this.$refs.canvas as typeof Canvas).clear();
+      (this.$refs.canvas as typeof EditingCanvas).clear();
     },
     changeBackground(file: File): void {
-      (this.$refs.canvas as typeof Canvas).changeBackground(file);
+      (this.$refs.canvas as typeof EditingCanvas).changeBackground(file);
     },
     changeLineColor(color: Color): void {
-      (this.$refs.canvas as typeof Canvas).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
+      (this.$refs.canvas as typeof EditingCanvas).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
     },
     updateIsUndoRedoActive(isUndoActive: boolean, isRedoActive: boolean) {
       this.isUndoActive = isUndoActive;
