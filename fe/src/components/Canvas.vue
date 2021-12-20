@@ -3,7 +3,7 @@
         <canvas
       id="backgroundCanvas"
       class="canvas"
-      :style="{ background: backgroundImage }"
+      :style="{ background: 'rgba(210, 210, 210, 0.75)' }"
     >
     </canvas>
     <canvas
