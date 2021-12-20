@@ -29,7 +29,7 @@ public class EditActivity extends AppCompatActivity {
                 return false;
             }
         });
-        wv.loadUrl("loklok-clone.netlify.app");
+        wv.loadUrl("demo--loklok-clone.netlify.app");
         getSupportActionBar().hide();
     }
 }

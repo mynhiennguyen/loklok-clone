@@ -36,7 +36,7 @@ public class LockScreenActivity extends AppCompatActivity {
                 return false;
             }
         });
-        wv.loadUrl("loklok-clone.netlify.app");
+        wv.loadUrl("demo--loklok-clone.netlify.app/canvas");
         wv.setBackgroundColor(Color.TRANSPARENT);
 
         mDetector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
