@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".EditActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -17,17 +17,16 @@
 
     <WebView
         android:id="@+id/webview"
-        android:layout_width="409dp"
-        android:layout_height="728dp"
+        android:layout_width="352dp"
+        android:layout_height="706dp"
         android:layout_marginEnd="2dp"
-        android:layout_marginBottom="3dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.508"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.48"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

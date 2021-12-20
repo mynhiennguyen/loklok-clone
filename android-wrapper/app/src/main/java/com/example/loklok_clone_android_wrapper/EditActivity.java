@@ -1,13 +1,16 @@
 package com.example.loklok_clone_android_wrapper;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GestureDetectorCompat;
 
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class MainActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,5 +30,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         wv.loadUrl("loklok-clone.netlify.app");
+        getSupportActionBar().hide();
     }
 }

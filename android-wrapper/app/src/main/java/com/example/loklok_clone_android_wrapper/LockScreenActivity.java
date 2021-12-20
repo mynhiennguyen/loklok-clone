@@ -1,16 +1,22 @@
 package com.example.loklok_clone_android_wrapper;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GestureDetectorCompat;
 
 public class LockScreenActivity extends AppCompatActivity {
-
+    private GestureDetectorCompat mDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +37,36 @@ public class LockScreenActivity extends AppCompatActivity {
             }
         });
         wv.loadUrl("loklok-clone.netlify.app");
+        wv.setBackgroundColor(Color.TRANSPARENT);
+
+        mDetector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent event) {
+                Log.d("GESTURE","onDown: " + event.toString());
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTapEvent(MotionEvent event) {
+                Log.d("GESTURE","onDown: " + event.toString());
+                openEditMode();
+                return true;
+            }
+        });
+
+        getSupportActionBar().hide();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    private void openEditMode() {
+        Intent intent = new Intent(this, EditActivity.class);
+        startActivity(intent);
+
     }
 
     private void showWhenLockedAndTurnScreenOn() {
