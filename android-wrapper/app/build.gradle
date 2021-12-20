@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.loklok_clone_android_wrapper"
-        minSdk 17
+        minSdk 26
         targetSdk 32
         versionCode 1
         versionName "1.0"
