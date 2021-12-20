@@ -48,7 +48,7 @@ const handleNewClientConnection = ((ws: WebSocket) => {
   broadcastListOfActiveUsers(activeUsers);
   // send current history to client
   // TODO: create message out of this?
-  history.undoStack.forEach((m: Action) => {
+  history.getCurrentDrawing().forEach((m: Action) => {
     ws.send(JSON.stringify(m.createMessage()));
   });
 })
