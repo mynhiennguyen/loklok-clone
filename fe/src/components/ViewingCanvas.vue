@@ -29,7 +29,6 @@ export default defineComponent({
     return {
       canvas: (null as unknown) as CanvasUI,
       backgroundCanvas: (null as unknown) as CanvasUI,
-      inputStateManager: (null as unknown) as InputStateManager,
       backgroundImage: "rgba(210, 210, 210, 0.75)",
       ws: (null as unknown) as WebSocket,
     };
@@ -82,9 +81,6 @@ export default defineComponent({
       )!;
       this.resizeCanvas(id); //sets height and width of canvas
       return new Canvas2D(context);
-    },
-    initInputStateManager(canvas: CanvasUI, ws: WebSocket): InputStateManager {
-      return new InputStateManager(canvas, ws);
     },
   },
 });

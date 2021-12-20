@@ -35,9 +35,9 @@ export class InputStateManager {
     } else if (store.state.tool == Tool.PENCIL) {
       this.inputState = new DrawingState(this.canvas, this.ws);
     }
-    if (this.touchPointCache.length == 2) {
-      this.inputState = new TouchErasingState(this.canvas, this.ws);
-    }
+    // if (this.touchPointCache.length == 2) {
+    //   this.inputState = new TouchErasingState(this.canvas, this.ws);
+    // }
 
     this.inputState.startAction(e, this.touchPointCache);
   }
