@@ -6,6 +6,7 @@ import {
   CompletedDrawingAction,
   CompletedErasingAction,
   RedoAction,
+  SendHistoryAction,
   SetBackgroundAction,
   UndoAction,
   UserSelectedColorAction,
@@ -21,6 +22,7 @@ import {
 export class Message {
   constructor(
     public readonly type: MessageType,
+    public readonly group: string,
     private readonly data?: any,
     private readonly timestamp?: Date,
     private readonly userId?: string
@@ -53,7 +55,9 @@ export class MessageDecoder {
       return new UserSelectedColorAction(msg.group, msg.data, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Clear) {
       return new ClearAction(msg.group, msg.timestamp, msg.userId);
-    } 
+    } else if(msg.type === MessageType.ChangeGroup) {
+      return new SendHistoryAction(msg.group, msg.timestamp, msg.userId);
+    }
     else {
       throw new Error(`invalid message type received: ${msg.type}`);
     }
@@ -73,4 +77,5 @@ export enum MessageType {
   ActiveUsersList = "LIST_OF_ACTIVE_USERS",
   Clear = "CLEAR",
   UndoRedoAvailabilties = "UNDO_REDO_AVAILABILITIES",
+  ChangeGroup = "CHANGE_GROUP"
 }

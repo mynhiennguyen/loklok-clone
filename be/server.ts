@@ -1,4 +1,4 @@
-import { Action } from "./src/types/action";
+import { Action, SendHistoryAction } from "./src/types/action";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
 import  WebSocket  from "ws";
@@ -35,13 +35,19 @@ wss.on("connection", (ws: WebSocket) => {;
   // handle incoming messages
   ws.on("message", (msg: string) => {
     const action: Action = MessageDecoder.parse(msg);
-    //extract group
-    //pushTo specific history of group
-    const group = groups.get(action.group);
-    console.log(action)
-    action.pushTo(group!.historyStack)
-    //TODO: broadcast to clients of this group
-    broadcastToClients(action.createMessage(ws), group); // TODO: remove ws as parameter if possible
+
+    if(action instanceof SendHistoryAction){
+      groups.get(action.group)!.historyStack.undoStack.forEach((m: Action) => {
+        ws.send(JSON.stringify(m.createMessage()));
+      });
+    }
+    else {
+      //extract group and pushTo specific history of this group
+      const group = groups.get(action.group);
+      action.pushTo(group!.historyStack);
+      //broadcast to clients of this group
+      broadcastToClients(action.createMessage(ws), group); // TODO: remove ws as parameter if possible
+    }
   });
 
   ws.on("close", () => {
@@ -65,13 +71,13 @@ const handleNewClientConnection = ((ws: WebSocket) => {
 
 const createUser = (ws: WebSocket) => {
   const newUser: User = new User();
-  const assignIdMessage = new Message(MessageType.AssignUserId, newUser.userId);
+  const assignIdMessage = new Message(MessageType.AssignUserId, "Group A", newUser.userId);
   ws.send(JSON.stringify(assignIdMessage));
   return newUser;
 };
 
 const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
-  const msg = new Message(MessageType.ActiveUsersList, [
+  const msg = new Message(MessageType.ActiveUsersList, "Group A", [
     ...activeUsers.values(),
   ]);
   wss.clients.forEach((client: WebSocket) => {

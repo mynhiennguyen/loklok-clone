@@ -236,6 +236,7 @@ export default defineComponent({
       this.$emit("changeBackground", (e.target as HTMLInputElement).files![0]);
     },
     changeGroup(e: Event): void {
+      this.$store.commit("changeGroup", (e.target as HTMLSelectElement).value);
       this.$emit("changeGroup", (e.target as HTMLSelectElement).value)
     }
   },

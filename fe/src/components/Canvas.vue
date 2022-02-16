@@ -70,14 +70,13 @@ export default defineComponent({
 
     // Websocket commmunication
     this.ws.onmessage = (msg: any) => {
-      if(msg.data.group !== this.$store.state.group) return; //ignore message
-      const action: Action = MessageDecoder.parse(
+      const action: Action | undefined = MessageDecoder.parse(
         msg.data,
         this.canvas,
         this.backgroundCanvas,
         this.ws
       );
-      action.execute(this);
+      action?.execute(this);
     };
 
     window.addEventListener("resize", () => {
@@ -145,7 +144,14 @@ export default defineComponent({
     },
     changeGroup(group: string): void{
       this.canvas.clear();
-      //TODO: request history of new group
+      //request history of new group
+      const msg: Message = new Message(
+          MessageType.ChangeGroup,
+          this.$store.state.group,
+          undefined,
+          this.$store.state.userId
+      );
+      this.ws.send(JSON.stringify(msg));
     },
     setActiveUsers(activeUsers: Record<string, string>[]) {
       this.activeUsers = activeUsers;

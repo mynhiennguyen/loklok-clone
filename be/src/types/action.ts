@@ -24,7 +24,7 @@ export abstract class Action<
   ) {}
 
   createMessage(ws?: WebSocket): Message | undefined {
-    return new Message(this.type, this.data, this.timestamp, this.userId);
+    return new Message(this.type, this.group, this.data, this.timestamp, this.userId);
   }
 
   pushTo(history: HistoryStack): void {
@@ -131,10 +131,16 @@ export class UserSelectedColorAction extends Action<Color> {
     const user: User = activeUsers.get(ws)!;
     user.setColor(this.data || Color.BLACK);
     activeUsers.set(ws, user);
-    return new Message(MessageType.ActiveUsersList, [...activeUsers.values()]);
+    return new Message(MessageType.ActiveUsersList, this.group, [...activeUsers.values()]);
   }
 
   override pushTo(history: HistoryStack) {
     // does not need to be in history - do nothing
+  }
+}
+
+export class SendHistoryAction extends Action {
+  constructor(group: string, timestamp: Date, userId: string) {
+    super(MessageType.ChangeGroup, group, undefined, timestamp, userId);
   }
 }
