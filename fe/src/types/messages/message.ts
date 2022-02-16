@@ -28,8 +28,9 @@ export class Message {
 
   constructor(
     private readonly type: MessageType,
+    private readonly group: string,
     private readonly data?: any,
-    private readonly userId?: string
+    private readonly userId?: string,
   ) {
     this.timestamp = new Date();
   }

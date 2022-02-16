@@ -8,6 +8,7 @@
       @clear="clear"
       @changeBackground="changeBackground"
       @changeLineColor="changeLineColor"
+      @changeGroup="changeGroup"
     ></ToolBar>
     <Canvas ref="canvas" @isUndoRedoActive="updateIsUndoRedoActive"></Canvas>
   </div>
@@ -46,6 +47,9 @@ export default defineComponent({
     },
     changeLineColor(color: Color): void {
       (this.$refs.canvas as typeof Canvas).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
+    },
+    changeGroup(group: string) {
+      (this.$refs.canvas as typeof Canvas).changeGroup(group);
     },
     updateIsUndoRedoActive(isUndoActive: boolean, isRedoActive: boolean) {
       this.isUndoActive = isUndoActive;
