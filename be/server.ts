@@ -8,6 +8,7 @@ import { Group } from "./src/types/group";
 const PORT = process.env.PORT || 3000;
 
 // init 3 groups
+// TODO: dynamic groups
 const groups = new Map<string, Group>([["Group A", new Group("Group A")], ["Group B", new Group("Group B")], ["Group C", new Group("Group C")]]);
 
 // create HTTP server
@@ -25,8 +26,6 @@ const wss = new WebSocket.Server({ server });
 
 // list of active users
 export const activeUsers = new Map<WebSocket, User>();
-// list of users by group
-const usersByGroup = new Map<string, WebSocket[]>();
 
 // handle connections
 wss.on("connection", (ws: WebSocket) => {;
