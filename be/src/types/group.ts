@@ -7,7 +7,7 @@ import { updateUndoRedoAvailabilities } from "../utils/utils";
 export class Group {
   historyStack: HistoryStack;
 
-  constructor(public readonly id: String) {
+  constructor(public readonly id: string) {
     this.historyStack = new HistoryStack(updateUndoRedoAvailabilities);
   }
 }

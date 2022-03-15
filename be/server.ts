@@ -4,6 +4,7 @@ import { User } from "./src/types/user";
 import WebSocket from "ws";
 import express from "express";
 import { Group } from "./src/types/group";
+import { group } from "console";
 
 const PORT = process.env.PORT || 3000;
 
@@ -14,6 +15,7 @@ const groups = new Map<string, Group>([
   ["Group B", new Group("Group B")],
   ["Group C", new Group("Group C")],
 ]);
+const DEFAULT_GROUP_KEY = "Group A";
 
 // create HTTP server
 const router = express.Router();
@@ -38,17 +40,19 @@ wss.on("connection", (ws: WebSocket) => {
   // handle incoming messages
   ws.on("message", (msg: string) => {
     const action: Action = MessageDecoder.parse(msg);
+    const group: Group | undefined = groups.get(action.groupId);
 
-    if (action instanceof SendHistoryAction) {
-      groups.get(action.group)!.historyStack.undoStack.forEach((m: Action) => {
-        ws.send(JSON.stringify(m.createMessage()));
-      });
-    } else {
-      //extract group and pushTo specific history of this group
-      const group = groups.get(action.group);
-      action.pushTo(group!.historyStack);
-      //broadcast to clients of this group
-      broadcastToClients(action.createMessage(ws), group); // TODO: remove ws as parameter if possible
+    if (group) {
+      if (action instanceof SendHistoryAction) {
+        group.historyStack.undoStack.forEach((m: Action) => {
+          ws.send(JSON.stringify(m.createMessage()));
+        });
+      } else {
+        //extract group and pushTo specific history of this group
+        action.pushTo(group.historyStack);
+        //broadcast to clients of this group
+        broadcastToClients(action.createMessage(ws), group); // TODO: remove ws as parameter if possible
+      }
     }
   });
 
@@ -66,7 +70,7 @@ const handleNewClientConnection = (ws: WebSocket) => {
   activeUsers.set(ws, newUser);
   broadcastListOfActiveUsers(activeUsers);
   // send history of default group (Group A) to client
-  groups.get("Group A")?.historyStack.undoStack.forEach((m: Action) => {
+  groups.get(DEFAULT_GROUP_KEY)?.historyStack.undoStack.forEach((m: Action) => {
     ws.send(JSON.stringify(m.createMessage()));
   });
 };
@@ -75,7 +79,7 @@ const createUser = (ws: WebSocket) => {
   const newUser: User = new User();
   const assignIdMessage = new Message(
     MessageType.AssignUserId,
-    "Group A",
+    DEFAULT_GROUP_KEY,
     newUser.userId
   );
   ws.send(JSON.stringify(assignIdMessage));
@@ -83,7 +87,7 @@ const createUser = (ws: WebSocket) => {
 };
 
 const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
-  const msg = new Message(MessageType.ActiveUsersList, "Group A", [
+  const msg = new Message(MessageType.ActiveUsersList, DEFAULT_GROUP_KEY, [
     ...activeUsers.values(),
   ]);
   wss.clients.forEach((client: WebSocket) => {

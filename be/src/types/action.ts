@@ -7,7 +7,7 @@ import WebSocket from "ws";
 /**
  * Abstract class for any Action (or message) sent between Client and Server via Websocket
  * @param {string} type defines the type of the action, e.g connecting, drawing, erasing, set_background
- * @param {string} group id of group where this action takes place
+ * @param {string} groupId id of group where this action takes place
  * @param {Record<string, unknown>} data any data that belongs to the action
  * @param {Date} timestamp
  * @param {string} userId unique identifier for each client / user
@@ -17,7 +17,7 @@ export abstract class Action<
 > {
   constructor(
     public readonly type: MessageType,
-    public readonly group: string,
+    public readonly groupId: string,
     public readonly data?: TData,
     public readonly timestamp?: Date,
     public readonly userId?: string
@@ -26,7 +26,7 @@ export abstract class Action<
   createMessage(ws?: WebSocket): Message | undefined {
     return new Message(
       this.type,
-      this.group,
+      this.groupId,
       this.data,
       this.timestamp,
       this.userId
@@ -40,12 +40,12 @@ export abstract class Action<
 
 export class ActiveDrawingAction extends Action<Record<string, any>> {
   constructor(
-    group: string,
+    groupId: string,
     data: Record<string, any>,
     timestamp: Date,
     userId: string
   ) {
-    super(MessageType.ActiveDrawing, group, data, timestamp, userId);
+    super(MessageType.ActiveDrawing, groupId, data, timestamp, userId);
   }
   override pushTo(history: HistoryStack): void {
     // does not need to be in history - do nothing
@@ -54,12 +54,12 @@ export class ActiveDrawingAction extends Action<Record<string, any>> {
 
 export class CompletedDrawingAction extends Action<Record<string, any>> {
   constructor(
-    group: string,
+    groupId: string,
     data: Record<string, any>,
     timestamp: Date,
     userId: string
   ) {
-    super(MessageType.CompletedDrawing, group, data, timestamp, userId);
+    super(MessageType.CompletedDrawing, groupId, data, timestamp, userId);
   }
   override createMessage(ws?: WebSocket): Message | undefined {
     if (ws) {
@@ -74,12 +74,12 @@ export class CompletedDrawingAction extends Action<Record<string, any>> {
 
 export class ActiveErasingAction extends Action<Record<string, any>> {
   constructor(
-    group: string,
+    groupId: string,
     data: Record<string, any>,
     timestamp: Date,
     userId: string
   ) {
-    super(MessageType.ActiveErasing, group, data, timestamp, userId);
+    super(MessageType.ActiveErasing, groupId, data, timestamp, userId);
   }
   override pushTo(history: HistoryStack): void {
     // does not need to be in history - do nothing
@@ -88,12 +88,12 @@ export class ActiveErasingAction extends Action<Record<string, any>> {
 
 export class CompletedErasingAction extends Action<Record<string, any>> {
   constructor(
-    group: string,
+    groupId: string,
     data: Record<string, any>,
     timestamp: Date,
     userId: string
   ) {
-    super(MessageType.CompletedErasing, group, data, timestamp, userId);
+    super(MessageType.CompletedErasing, groupId, data, timestamp, userId);
   }
   override createMessage(ws?: WebSocket): Message | undefined {
     if (ws) {
@@ -107,8 +107,8 @@ export class CompletedErasingAction extends Action<Record<string, any>> {
 }
 
 export class UndoAction extends Action {
-  constructor(group: string, timestamp: Date, userId: string) {
-    super(MessageType.Undo, group, undefined, timestamp, userId);
+  constructor(groupId: string, timestamp: Date, userId: string) {
+    super(MessageType.Undo, groupId, undefined, timestamp, userId);
   }
 
   override pushTo(history: HistoryStack): void {
@@ -120,8 +120,8 @@ export class UndoAction extends Action {
 export class RedoAction extends Action {
   lastAction: Action | undefined;
 
-  constructor(group: string, timestamp: Date, userId: string) {
-    super(MessageType.Redo, group, undefined, timestamp, userId);
+  constructor(groupId: string, timestamp: Date, userId: string) {
+    super(MessageType.Redo, groupId, undefined, timestamp, userId);
   }
 
   override pushTo(history: HistoryStack): void {
@@ -137,24 +137,24 @@ export class RedoAction extends Action {
 
 export class SetBackgroundAction extends Action<Record<string, any>> {
   constructor(
-    group: string,
+    groupId: string,
     data: Record<string, any>,
     timestamp: Date,
     userId: string
   ) {
-    super(MessageType.SetBackground, group, data, timestamp, userId);
+    super(MessageType.SetBackground, groupId, data, timestamp, userId);
   }
 }
 
 export class ClearAction extends Action {
-  constructor(group: string, timestamp: Date, userId: string) {
-    super(MessageType.Clear, group, undefined, timestamp, userId);
+  constructor(groupId: string, timestamp: Date, userId: string) {
+    super(MessageType.Clear, groupId, undefined, timestamp, userId);
   }
 }
 
 export class UserSelectedColorAction extends Action<Color> {
-  constructor(group: string, data: Color, timestamp: Date, userId: string) {
-    super(MessageType.UserSelectedColor, group, data, timestamp, userId);
+  constructor(groupId: string, data: Color, timestamp: Date, userId: string) {
+    super(MessageType.UserSelectedColor, groupId, data, timestamp, userId);
   }
 
   override createMessage(ws: WebSocket): Message {
@@ -162,7 +162,7 @@ export class UserSelectedColorAction extends Action<Color> {
     const user: User = activeUsers.get(ws)!;
     user.setColor(this.data || Color.BLACK);
     activeUsers.set(ws, user);
-    return new Message(MessageType.ActiveUsersList, this.group, [
+    return new Message(MessageType.ActiveUsersList, this.groupId, [
       ...activeUsers.values(),
     ]);
   }
@@ -173,7 +173,7 @@ export class UserSelectedColorAction extends Action<Color> {
 }
 
 export class SendHistoryAction extends Action {
-  constructor(group: string, timestamp: Date, userId: string) {
-    super(MessageType.ChangeGroup, group, undefined, timestamp, userId);
+  constructor(groupId: string, timestamp: Date, userId: string) {
+    super(MessageType.ChangeGroup, groupId, undefined, timestamp, userId);
   }
 }
