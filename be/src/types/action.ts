@@ -24,7 +24,13 @@ export abstract class Action<
   ) {}
 
   createMessage(ws?: WebSocket): Message | undefined {
-    return new Message(this.type, this.group, this.data, this.timestamp, this.userId);
+    return new Message(
+      this.type,
+      this.group,
+      this.data,
+      this.timestamp,
+      this.userId
+    );
   }
 
   pushTo(history: HistoryStack): void {
@@ -33,7 +39,12 @@ export abstract class Action<
 }
 
 export class ActiveDrawingAction extends Action<Record<string, any>> {
-  constructor(group: string, data: Record<string, any>, timestamp: Date, userId: string) {
+  constructor(
+    group: string,
+    data: Record<string, any>,
+    timestamp: Date,
+    userId: string
+  ) {
     super(MessageType.ActiveDrawing, group, data, timestamp, userId);
   }
   override pushTo(history: HistoryStack): void {
@@ -42,7 +53,12 @@ export class ActiveDrawingAction extends Action<Record<string, any>> {
 }
 
 export class CompletedDrawingAction extends Action<Record<string, any>> {
-  constructor(group: string, data: Record<string, any>, timestamp: Date, userId: string) {
+  constructor(
+    group: string,
+    data: Record<string, any>,
+    timestamp: Date,
+    userId: string
+  ) {
     super(MessageType.CompletedDrawing, group, data, timestamp, userId);
   }
   override createMessage(ws?: WebSocket): Message | undefined {
@@ -57,7 +73,12 @@ export class CompletedDrawingAction extends Action<Record<string, any>> {
 }
 
 export class ActiveErasingAction extends Action<Record<string, any>> {
-  constructor(group: string, data: Record<string, any>, timestamp: Date, userId: string) {
+  constructor(
+    group: string,
+    data: Record<string, any>,
+    timestamp: Date,
+    userId: string
+  ) {
     super(MessageType.ActiveErasing, group, data, timestamp, userId);
   }
   override pushTo(history: HistoryStack): void {
@@ -66,7 +87,12 @@ export class ActiveErasingAction extends Action<Record<string, any>> {
 }
 
 export class CompletedErasingAction extends Action<Record<string, any>> {
-  constructor(group: string, data: Record<string, any>, timestamp: Date, userId: string) {
+  constructor(
+    group: string,
+    data: Record<string, any>,
+    timestamp: Date,
+    userId: string
+  ) {
     super(MessageType.CompletedErasing, group, data, timestamp, userId);
   }
   override createMessage(ws?: WebSocket): Message | undefined {
@@ -110,7 +136,12 @@ export class RedoAction extends Action {
 }
 
 export class SetBackgroundAction extends Action<Record<string, any>> {
-  constructor(group: string, data: Record<string, any>, timestamp: Date, userId: string) {
+  constructor(
+    group: string,
+    data: Record<string, any>,
+    timestamp: Date,
+    userId: string
+  ) {
     super(MessageType.SetBackground, group, data, timestamp, userId);
   }
 }
@@ -131,7 +162,9 @@ export class UserSelectedColorAction extends Action<Color> {
     const user: User = activeUsers.get(ws)!;
     user.setColor(this.data || Color.BLACK);
     activeUsers.set(ws, user);
-    return new Message(MessageType.ActiveUsersList, this.group, [...activeUsers.values()]);
+    return new Message(MessageType.ActiveUsersList, this.group, [
+      ...activeUsers.values(),
+    ]);
   }
 
   override pushTo(history: HistoryStack) {

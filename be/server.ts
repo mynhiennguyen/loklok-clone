@@ -1,25 +1,29 @@
 import { Action, SendHistoryAction } from "./src/types/action";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
-import  WebSocket  from "ws";
-import express from 'express';
+import WebSocket from "ws";
+import express from "express";
 import { Group } from "./src/types/group";
 
 const PORT = process.env.PORT || 3000;
 
 // init 3 groups
 // TODO: dynamic groups
-const groups = new Map<string, Group>([["Group A", new Group("Group A")], ["Group B", new Group("Group B")], ["Group C", new Group("Group C")]]);
+const groups = new Map<string, Group>([
+  ["Group A", new Group("Group A")],
+  ["Group B", new Group("Group B")],
+  ["Group C", new Group("Group C")],
+]);
 
 // create HTTP server
 const router = express.Router();
 const cors = require("cors");
-router.get('/', cors(), (request, response) => {
+router.get("/", cors(), (request, response) => {
   response.send(Array.from(groups.keys()));
-})
-const server = express().use(router).listen(PORT, () =>
-  console.log(`Listening on ${PORT}`)
-);
+});
+const server = express()
+  .use(router)
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // create WebSocket server
 const wss = new WebSocket.Server({ server });
@@ -28,19 +32,18 @@ const wss = new WebSocket.Server({ server });
 export const activeUsers = new Map<WebSocket, User>();
 
 // handle connections
-wss.on("connection", (ws: WebSocket) => {;
+wss.on("connection", (ws: WebSocket) => {
   handleNewClientConnection(ws);
 
   // handle incoming messages
   ws.on("message", (msg: string) => {
     const action: Action = MessageDecoder.parse(msg);
 
-    if(action instanceof SendHistoryAction){
+    if (action instanceof SendHistoryAction) {
       groups.get(action.group)!.historyStack.undoStack.forEach((m: Action) => {
         ws.send(JSON.stringify(m.createMessage()));
       });
-    }
-    else {
+    } else {
       //extract group and pushTo specific history of this group
       const group = groups.get(action.group);
       action.pushTo(group!.historyStack);
@@ -56,7 +59,7 @@ wss.on("connection", (ws: WebSocket) => {;
   });
 });
 
-const handleNewClientConnection = ((ws: WebSocket) => {
+const handleNewClientConnection = (ws: WebSocket) => {
   // create user and assign ID
   const newUser: User = createUser(ws);
   // add new user to list of active users and broadcast list to all other users
@@ -66,11 +69,15 @@ const handleNewClientConnection = ((ws: WebSocket) => {
   groups.get("Group A")?.historyStack.undoStack.forEach((m: Action) => {
     ws.send(JSON.stringify(m.createMessage()));
   });
-})
+};
 
 const createUser = (ws: WebSocket) => {
   const newUser: User = new User();
-  const assignIdMessage = new Message(MessageType.AssignUserId, "Group A", newUser.userId);
+  const assignIdMessage = new Message(
+    MessageType.AssignUserId,
+    "Group A",
+    newUser.userId
+  );
   ws.send(JSON.stringify(assignIdMessage));
   return newUser;
 };
@@ -84,7 +91,10 @@ const broadcastListOfActiveUsers = (activeUsers: Map<Object, User>) => {
   });
 };
 
-const broadcastToClients = (msg: Message | undefined, group: Group | undefined) => {
+const broadcastToClients = (
+  msg: Message | undefined,
+  group: Group | undefined
+) => {
   if (msg === undefined) return;
   wss.clients.forEach((client: WebSocket) => {
     client.send(JSON.stringify(msg));

@@ -46,9 +46,17 @@ export class HistoryStack {
   }
 
   private checkUndoRedoAvailabilities(userId: string) {
-    const isUndoAvailable: boolean = this.undoStack.some((e) => e.userId === userId);
-    const isRedoAvailable: boolean = this.redoStack.some((e) => e.userId === userId);
+    const isUndoAvailable: boolean = this.undoStack.some(
+      (e) => e.userId === userId
+    );
+    const isRedoAvailable: boolean = this.redoStack.some(
+      (e) => e.userId === userId
+    );
 
-    this.updateUndoRedoAvailabilitiesForUser(userId, isUndoAvailable, isRedoAvailable);
+    this.updateUndoRedoAvailabilitiesForUser(
+      userId,
+      isUndoAvailable,
+      isRedoAvailable
+    );
   }
 }
