@@ -1,4 +1,5 @@
 import { Action } from "./action";
+import { MessageType } from "./message";
 
 export class HistoryStack {
   undoStack: Action[] = [];
@@ -11,7 +12,6 @@ export class HistoryStack {
     this.undoStack.push(action);
     this.redoStack = this.redoStack.filter((e) => e.userId !== action.userId); // once new Action is added, clear redoStack from this users actions
     //TODO: limit HistoryStack size
-    //TODO: reset History after Clear?
     this.checkUndoRedoAvailabilities(action.userId!);
   }
 
@@ -43,6 +43,13 @@ export class HistoryStack {
     this.checkUndoRedoAvailabilities(userId);
 
     return lastAction[0];
+  }
+
+  getCurrentDrawing(): Action[] {
+    //find latest clear
+    const lastClearIndex = this.undoStack.map(e => e.type).lastIndexOf(MessageType.Clear);
+    const currentDrawing = this.undoStack.splice(lastClearIndex+1, this.undoStack.length - lastClearIndex - 1);
+    return currentDrawing;
   }
 
   private checkUndoRedoAvailabilities(userId: string) {

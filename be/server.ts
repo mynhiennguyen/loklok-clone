@@ -4,7 +4,6 @@ import { User } from "./src/types/user";
 import WebSocket from "ws";
 import express from "express";
 import { Group } from "./src/types/group";
-import { group } from "console";
 
 const PORT = process.env.PORT || 3000;
 

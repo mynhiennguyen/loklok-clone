@@ -1,31 +1,60 @@
 <template>
-    <div>
-        <canvas
-      id="backgroundCanvas"
-      class="canvas"
-      :style="{ background: 'rgba(210, 210, 210, 0.75)' }"
-    >
-    </canvas>
-    <canvas
-      id="mainCanvas"
-      class="canvas"
+  <div>
+    <Canvas
       @pointerdown="handlePointerDown"
       @pointermove="handlePointerMove"
       @pointerup="handlePointerUp"
-    >
-    </canvas>
-    </div>
+    ></Canvas>
+    <active-users-display
+      id="activeUsers"
+      :activeUsers="activeUsers"
+    ></active-users-display>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue, { defineComponent } from 'vue'
+import { defineComponent } from "vue";
+import ActiveUsersDisplay from "./ActiveUsersDisplay.vue";
+import { Action } from "../types/interfaces/action";
+import { InputStateManager } from "../types/inputStateManager";
+import { CanvasUI } from "../types/interfaces/canvas";
+import { Canvas2D } from "../types/canvas2D";
+import Canvas from "./Canvas.vue";
+import {
+  Message,
+  MessageDecoder,
+  MessageType,
+} from "../types/messages/message";
+import { Color } from "../options";
+
 export default defineComponent({
-    name: "Canvas",
-    props: {},
-    methods: {
-        handlePointerDown(ev: PointerEvent) { this.$emit('pointerdown', ev)},
-        handlePointerMove(ev: PointerEvent) { this.$emit('pointermove', ev)},
-        handlePointerUp(ev: PointerEvent) {this.$emit('pointerup', ev)}
+  name: "EditingCanvas",
+  props: {},
+  components: {
+    ActiveUsersDisplay,
+    Canvas
+  },
+
+  data() {
+    return {
+      canvas: (null as unknown) as CanvasUI,
+      backgroundCanvas: (null as unknown) as CanvasUI,
+      inputStateManager: (null as unknown) as InputStateManager,
+      backgroundImage: "rgba(210, 210, 210, 0.75)",
+      ws: (null as unknown) as WebSocket,
+      activeUsers: [] as Record<string, string>[],
+    };
+  },
+  computed: {
+    lineThickness(): void {
+      return this.$store.state.lineThickness;
+    },
+  },
+  mounted(): void {
+    if (process.env.NODE_ENV === "development") {
+      this.ws = new WebSocket("ws://localhost:3000");
+    } else {
+      this.ws = new WebSocket("wss://loklok-clone.herokuapp.com/");
     }
 
     this.canvas = this.initCanvas("mainCanvas");
@@ -34,13 +63,13 @@ export default defineComponent({
 
     // Websocket commmunication
     this.ws.onmessage = (msg: any) => {
-      const action: Action | undefined = MessageDecoder.parse(
+      const action: Action = MessageDecoder.parse(
         msg.data,
         this.canvas,
         this.backgroundCanvas,
         this.ws
       );
-      action?.execute(this);
+      action.execute(this);
     };
 
     window.addEventListener("resize", () => {
@@ -52,7 +81,6 @@ export default defineComponent({
     undo(): void {
       const msg: Message = new Message(
         MessageType.Undo,
-        this.$store.state.group,
         undefined,
         this.$store.state.userId
       );
@@ -61,7 +89,6 @@ export default defineComponent({
     redo(): void {
       const msg: Message = new Message(
         MessageType.Redo,
-        this.$store.state.group,
         undefined,
         this.$store.state.userId
       );
@@ -71,7 +98,6 @@ export default defineComponent({
       this.canvas.clear();
       const msg: Message = new Message(
         MessageType.Clear,
-        this.$store.state.group,
         undefined,
         this.$store.state.userId
       );
@@ -89,7 +115,6 @@ export default defineComponent({
       }).then((res) => {
         const msg: Message = new Message(
           MessageType.SetBackground,
-          this.$store.state.group,
           res,
           this.$store.state.userId
         );
@@ -100,20 +125,8 @@ export default defineComponent({
       // notify other users of color change via WS
       const msg: Message = new Message(
         MessageType.UserSelectedColor,
-        this.$store.state.group,
         color,
         this.$store.state.userId
-      );
-      this.ws.send(JSON.stringify(msg));
-    },
-    changeGroup(group: string): void{
-      this.canvas.clear();
-      //request history of new group
-      const msg: Message = new Message(
-          MessageType.ChangeGroup,
-          this.$store.state.group,
-          undefined,
-          this.$store.state.userId
       );
       this.ws.send(JSON.stringify(msg));
     },
@@ -161,24 +174,9 @@ export default defineComponent({
 });
 </script>
 
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  min-height: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  touch-action: none;
-  background-size: contain;
-}
-#mainCanvas {
-  z-index: 1;
-}
-#backgroundCanvas {
-  z-index: 0;
+#activeUsers {
+  z-index: 2;
 }
 </style>
