@@ -8,9 +8,22 @@ export const uuid = () => {
 };
 
 // Probably doesn't belong here - TODO: move function
-export const updateUndoRedoAvailabilities = (userId: string, isUndoAvailable: boolean, isRedoAvailable: boolean) => {
-  const msg: Message = new Message(MessageType.UndoRedoAvailabilties, {"isUndoAvailable": isUndoAvailable, "isRedoAvailable": isRedoAvailable}, undefined, userId);
-  const wsConnection: WebSocket | undefined = [...activeUsers.entries()].find(([, user]) => user.userId === userId)?.[0];
+export const updateUndoRedoAvailabilities = (
+  userId: string,
+  group: string,
+  isUndoAvailable: boolean,
+  isRedoAvailable: boolean
+) => {
+  const msg: Message = new Message(
+    MessageType.UndoRedoAvailabilties,
+    group,
+    { isUndoAvailable: isUndoAvailable, isRedoAvailable: isRedoAvailable },
+    undefined,
+    userId
+  );
+  const wsConnection: WebSocket | undefined = [...activeUsers.entries()].find(
+    ([, user]) => user.userId === userId
+  )?.[0];
 
   wsConnection?.send(JSON.stringify(msg));
-}
+};

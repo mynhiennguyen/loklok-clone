@@ -6,6 +6,7 @@ export type State = {
   lineThickness: number;
   lineColor: Color;
   userId: string;
+  group: string;
 };
 
 const state: State = {
@@ -13,6 +14,7 @@ const state: State = {
   lineThickness: Width.THIN,
   lineColor: Color.BLACK,
   userId: "NO_ID",
+  group: "Group A"
 };
 
 export const store = createStore({
@@ -30,5 +32,8 @@ export const store = createStore({
     setUserId(state: State, userId: string) {
       state.userId = userId;
     },
+    changeGroup(state: State, group: string){
+      state.group = group;
+    }
   },
 });

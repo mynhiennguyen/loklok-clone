@@ -7,6 +7,7 @@ import { CanvasUI } from "../interfaces/canvas";
 import { UserIdAssignmentAction } from "../actions/userIdAssignmentAction";
 import { UndoRedoAvailabilitiesAction } from "../actions/undoRedoAvailabilitiesAction";
 import { SetBackgroundAction } from "../actions/setBackgroundAction";
+import { store } from "@/store";
 
 export enum MessageType {
   ActiveDrawing = "ACTIVE_DRAWING",
@@ -21,6 +22,7 @@ export enum MessageType {
   UserSelectedColor = "USER_SELECTED_COLOR",
   Clear = "CLEAR",
   UndoRedoAvailabilities = "UNDO_REDO_AVAILABILITIES",
+  ChangeGroup = "CHANGE_GROUP"
 }
 
 export class Message {
@@ -28,8 +30,9 @@ export class Message {
 
   constructor(
     private readonly type: MessageType,
+    private readonly group: string,
     private readonly data?: any,
-    private readonly userId?: string
+    private readonly userId?: string,
   ) {
     this.timestamp = new Date();
   }
@@ -41,10 +44,11 @@ export class MessageDecoder {
     canvas: CanvasUI,
     backgroundCanvas: CanvasUI,
     ws: WebSocket
-  ): Action {
+  ): Action | undefined {
     const msg: any = JSON.parse(message);
     console.log(msg);
     if (!msg.type) throw new Error("no message type received");
+    else if(msg.group !== store.state.group) return undefined; //ignore message
     else if (msg.type === MessageType.ReceiveUserID) {
       return new UserIdAssignmentAction(msg.data, canvas, ws);
     } else if (

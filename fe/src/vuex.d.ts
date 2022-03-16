@@ -14,6 +14,7 @@ declare module "@vue/runtime-core" {
     lineThickness: Width;
     lineColor: Color;
     userId: string;
+    group: string;
   }
 
   // provide typings for `this.$store`
