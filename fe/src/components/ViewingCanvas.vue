@@ -46,13 +46,13 @@ export default defineComponent({
 
     // Websocket commmunication
     this.ws.onmessage = (msg: any) => {
-      const action: Action = MessageDecoder.parse(
+      const action: Action | undefined = MessageDecoder.parse(
         msg.data,
         this.canvas,
         this.backgroundCanvas,
         this.ws
       );
-      action.execute(this);
+      action?.execute(this);
     };
 
     window.addEventListener("resize", () => {

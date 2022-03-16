@@ -49,7 +49,7 @@ export default defineComponent({
       (this.$refs.canvas as typeof EditingCanvas).changeLineColor(color); // currently all WS-communication is handled within Canvas. TODO: refactor
     },
     changeGroup(group: string) {
-      (this.$refs.canvas as typeof Canvas).changeGroup(group);
+      (this.$refs.canvas as typeof EditingCanvas).changeGroup(group);
     },
     updateIsUndoRedoActive(isUndoActive: boolean, isRedoActive: boolean) {
       this.isUndoActive = isUndoActive;

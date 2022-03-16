@@ -63,13 +63,13 @@ export default defineComponent({
 
     // Websocket commmunication
     this.ws.onmessage = (msg: any) => {
-      const action: Action = MessageDecoder.parse(
+      const action: Action | undefined = MessageDecoder.parse(
         msg.data,
         this.canvas,
         this.backgroundCanvas,
         this.ws
       );
-      action.execute(this);
+      action?.execute(this);
     };
 
     window.addEventListener("resize", () => {
@@ -81,6 +81,7 @@ export default defineComponent({
     undo(): void {
       const msg: Message = new Message(
         MessageType.Undo,
+        this.$store.state.group,
         undefined,
         this.$store.state.userId
       );
@@ -89,6 +90,7 @@ export default defineComponent({
     redo(): void {
       const msg: Message = new Message(
         MessageType.Redo,
+        this.$store.state.group,
         undefined,
         this.$store.state.userId
       );
@@ -98,6 +100,7 @@ export default defineComponent({
       this.canvas.clear();
       const msg: Message = new Message(
         MessageType.Clear,
+        this.$store.state.group,
         undefined,
         this.$store.state.userId
       );
@@ -115,6 +118,7 @@ export default defineComponent({
       }).then((res) => {
         const msg: Message = new Message(
           MessageType.SetBackground,
+          this.$store.state.group,
           res,
           this.$store.state.userId
         );
@@ -125,8 +129,20 @@ export default defineComponent({
       // notify other users of color change via WS
       const msg: Message = new Message(
         MessageType.UserSelectedColor,
+        this.$store.state.group,
         color,
         this.$store.state.userId
+      );
+      this.ws.send(JSON.stringify(msg));
+    },
+    changeGroup(group: string): void{
+      this.canvas.clear();
+      //request history of new group
+      const msg: Message = new Message(
+          MessageType.ChangeGroup,
+          this.$store.state.group,
+          undefined,
+          this.$store.state.userId
       );
       this.ws.send(JSON.stringify(msg));
     },
