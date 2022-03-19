@@ -1,8 +1,25 @@
 <template>
   <div id="toolbar">
-    <tool-bar-dropdown class="toolbar__button" :items="tools"></tool-bar-dropdown>
-    <tool-bar-dropdown class="toolbar__button" :items="colors" rounded></tool-bar-dropdown>
-    <tool-bar-dropdown class="toolbar__button" :items="width"></tool-bar-dropdown>
+    <div class="toolbar__item">
+      <p>
+        Logged in as <br />
+        <strong>{{ $store.state.userName }}</strong>
+      </p>
+    </div>
+
+    <tool-bar-dropdown
+      class="toolbar__button"
+      :items="tools"
+    ></tool-bar-dropdown>
+    <tool-bar-dropdown
+      class="toolbar__button"
+      :items="colors"
+      rounded
+    ></tool-bar-dropdown>
+    <tool-bar-dropdown
+      class="toolbar__button"
+      :items="width"
+    ></tool-bar-dropdown>
     <!-- Undo icon as inline SVG -->
     <div
       class="toolbar__button"
@@ -33,8 +50,11 @@
       </svg>
     </div>
     <!-- Redo icon as inline SVG -->
-    <div class="toolbar__button" @click="redo"
-    :class="{ 'toolbar__button--disabled': !isRedoActive }">
+    <div
+      class="toolbar__button"
+      @click="redo"
+      :class="{ 'toolbar__button--disabled': !isRedoActive }"
+    >
       <svg
         version="1.1"
         id="Capa_1"
@@ -74,7 +94,9 @@
       />
     </div>
     <select @change="changeGroup">
-      <option v-for="group in groups" :key="group" :value="group">{{group}}</option>
+      <option v-for="group in groups" :key="group" :value="group">{{
+        group
+      }}</option>
     </select>
   </div>
 </template>
@@ -89,9 +111,16 @@ export default defineComponent({
   name: "ToolBar",
   props: {
     isUndoActive: Boolean,
-    isRedoActive: Boolean
+    isRedoActive: Boolean,
   },
-  emits: ["undo", "redo", "clear", "changeBackground", "changeLineColor", "changeGroup"],
+  emits: [
+    "undo",
+    "redo",
+    "clear",
+    "changeBackground",
+    "changeLineColor",
+    "changeGroup",
+  ],
   data() {
     return {
       width: [
@@ -207,10 +236,11 @@ export default defineComponent({
     };
   },
   mounted() {
+    //TODO: fetch once id is set
     fetch("http://localhost:3000")
-      .then(res => res.json())
-      .then(res => this.groups = res)
-      .catch(err => console.log(err))
+      .then((res) => res.json())
+      .then((res) => (this.groups = res))
+      .catch((err) => console.log(err));
   },
   methods: {
     undo(): void {
@@ -237,8 +267,8 @@ export default defineComponent({
     },
     changeGroup(e: Event): void {
       this.$store.commit("changeGroup", (e.target as HTMLSelectElement).value);
-      this.$emit("changeGroup", (e.target as HTMLSelectElement).value)
-    }
+      this.$emit("changeGroup", (e.target as HTMLSelectElement).value);
+    },
   },
 });
 </script>

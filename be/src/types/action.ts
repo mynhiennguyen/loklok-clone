@@ -2,6 +2,7 @@ import { activeUsers } from "../../server";
 import { HistoryStack } from "./history";
 import { Message, MessageType } from "./message";
 import { Color, User } from "./user";
+import { uuid } from "../utils/utils";
 import WebSocket from "ws";
 
 /**
@@ -175,5 +176,12 @@ export class UserSelectedColorAction extends Action<Color> {
 export class SendHistoryAction extends Action {
   constructor(groupId: string, timestamp: Date, userId: string) {
     super(MessageType.ChangeGroup, groupId, undefined, timestamp, userId);
+  }
+}
+
+export class AssignUserIdAction extends Action {
+  constructor(groupId: string, timestamp: Date, userId: string) {
+    const id = uuid();
+    super(MessageType.AssignUserId, groupId, id, timestamp, userId);
   }
 }

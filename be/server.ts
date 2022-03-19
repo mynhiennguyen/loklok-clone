@@ -1,4 +1,8 @@
-import { Action, SendHistoryAction } from "./src/types/action";
+import {
+  Action,
+  SendHistoryAction,
+  AssignUserIdAction,
+} from "./src/types/action";
 import { Message, MessageDecoder, MessageType } from "./src/types/message";
 import { User } from "./src/types/user";
 import WebSocket from "ws";
@@ -40,18 +44,22 @@ wss.on("connection", (ws: WebSocket) => {
   ws.on("message", (msg: string) => {
     const action: Action = MessageDecoder.parse(msg);
     const group: Group | undefined = groups.get(action.groupId);
+    console.log(action);
 
-    if (group) {
-      if (action instanceof SendHistoryAction) {
-        group.historyStack.undoStack.forEach((m: Action) => {
-          ws.send(JSON.stringify(m.createMessage()));
-        });
-      } else {
-        //extract group and pushTo specific history of this group
-        action.pushTo(group.historyStack);
-        //broadcast to clients of this group
-        broadcastToClients(action.createMessage(ws), group); // TODO: remove ws as parameter if possible
-      }
+    //TODO: refactor
+    if (action instanceof SendHistoryAction) {
+      group?.historyStack.undoStack.forEach((m: Action) => {
+        ws.send(JSON.stringify(m.createMessage()));
+      });
+    } else if (action instanceof AssignUserIdAction) {
+      // Single receiver
+      ws.send(JSON.stringify(action.createMessage()));
+    } else if (group) {
+      // Broadcasted message
+      //extract group and pushTo specific history of this group
+      action.pushTo(group.historyStack);
+      //broadcast to clients of this group
+      broadcastToClients(action.createMessage(ws), group); // TODO: remove ws as parameter if possible
     }
   });
 
@@ -76,12 +84,12 @@ const handleNewClientConnection = (ws: WebSocket) => {
 
 const createUser = (ws: WebSocket) => {
   const newUser: User = new User();
-  const assignIdMessage = new Message(
-    MessageType.AssignUserId,
-    DEFAULT_GROUP_KEY,
-    newUser.userId
-  );
-  ws.send(JSON.stringify(assignIdMessage));
+  // const assignIdMessage = new Message(
+  //   MessageType.AssignUserId,
+  //   DEFAULT_GROUP_KEY,
+  //   newUser.userId
+  // );
+  // ws.send(JSON.stringify(assignIdMessage));
   return newUser;
 };
 

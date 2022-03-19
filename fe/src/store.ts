@@ -6,7 +6,8 @@ export type State = {
   lineThickness: number;
   lineColor: Color;
   userId: string;
-  group: string;
+  userName: string;
+  groupId: string;
 };
 
 const state: State = {
@@ -14,7 +15,8 @@ const state: State = {
   lineThickness: Width.THIN,
   lineColor: Color.BLACK,
   userId: "NO_ID",
-  group: "Group A"
+  userName: "NO_NAME",
+  groupId: "Group A",
 };
 
 export const store = createStore({
@@ -31,9 +33,22 @@ export const store = createStore({
     },
     setUserId(state: State, userId: string) {
       state.userId = userId;
+      const user = {
+        name: state.userName,
+        id: state.userId,
+      };
+      localStorage.setItem("user", JSON.stringify(user));
     },
-    changeGroup(state: State, group: string){
-      state.group = group;
-    }
+    setUserName(state: State, userName: string) {
+      state.userName = userName;
+      const user = {
+        name: state.userName,
+        id: state.userId,
+      };
+      localStorage.setItem("user", JSON.stringify(user));
+    },
+    changeGroup(state: State, groupId: string) {
+      state.groupId = groupId;
+    },
   },
 });
