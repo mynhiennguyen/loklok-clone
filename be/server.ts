@@ -8,6 +8,9 @@ import { User } from "./src/types/user";
 import WebSocket from "ws";
 import express from "express";
 import { Group } from "./src/types/group";
+import { Database } from "./src/db/database";
+import { PostgresDatabase } from "./src/db/postgresDatabase";
+const dotenv = require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
 
@@ -36,6 +39,11 @@ const wss = new WebSocket.Server({ server });
 // list of active users
 export const activeUsers = new Map<WebSocket, User>();
 
+//Database
+
+const db: Database = new PostgresDatabase();
+db.connect();
+
 // handle connections
 wss.on("connection", (ws: WebSocket) => {
   handleNewClientConnection(ws);
@@ -43,17 +51,18 @@ wss.on("connection", (ws: WebSocket) => {
   // handle incoming messages
   ws.on("message", (msg: string) => {
     const action: Action = MessageDecoder.parse(msg);
+    console.log("Action received: ", action);
     const group: Group | undefined = groups.get(action.groupId);
-    console.log(action);
 
     //TODO: refactor
     if (action instanceof SendHistoryAction) {
-      group?.historyStack.undoStack.forEach((m: Action) => {
-        ws.send(JSON.stringify(m.createMessage()));
+      group?.historyStack.undoStack.forEach((a: Action) => {
+        ws.send(JSON.stringify(a.createMessage()));
       });
     } else if (action instanceof AssignUserIdAction) {
       // Single receiver
       ws.send(JSON.stringify(action.createMessage()));
+      // TODO: save data in DB
     } else if (group) {
       // Broadcasted message
       //extract group and pushTo specific history of this group
@@ -84,12 +93,6 @@ const handleNewClientConnection = (ws: WebSocket) => {
 
 const createUser = (ws: WebSocket) => {
   const newUser: User = new User();
-  // const assignIdMessage = new Message(
-  //   MessageType.AssignUserId,
-  //   DEFAULT_GROUP_KEY,
-  //   newUser.userId
-  // );
-  // ws.send(JSON.stringify(assignIdMessage));
   return newUser;
 };
 

@@ -193,7 +193,7 @@ export default defineComponent({
     requestUserId(): void {
       const msg: Message = new Message(
         MessageType.RequestUserID,
-        "Group A",
+        "Group A", //TODO: make group optional, remove value
         null,
         undefined
       );
