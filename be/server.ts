@@ -39,8 +39,7 @@ const wss = new WebSocket.Server({ server });
 // list of active users
 export const activeUsers = new Map<WebSocket, User>();
 
-//Database
-
+// Database
 const db: Database = new PostgresDatabase();
 db.connect();
 
@@ -54,15 +53,14 @@ wss.on("connection", (ws: WebSocket) => {
     console.log("Action received: ", action);
     const group: Group | undefined = groups.get(action.groupId);
 
-    //TODO: refactor
+    // TODO: refactor
     if (action instanceof SendHistoryAction) {
       group?.historyStack.undoStack.forEach((a: Action) => {
         ws.send(JSON.stringify(a.createMessage()));
       });
     } else if (action instanceof AssignUserIdAction) {
-      // Single receiver
       ws.send(JSON.stringify(action.createMessage()));
-      // TODO: save data in DB
+      if (action.data) db.addUser(action.data.id, action.data.name);
     } else if (group) {
       // Broadcasted message
       //extract group and pushTo specific history of this group

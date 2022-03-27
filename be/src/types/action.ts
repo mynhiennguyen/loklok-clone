@@ -179,9 +179,14 @@ export class SendHistoryAction extends Action {
   }
 }
 
-export class AssignUserIdAction extends Action {
-  constructor(groupId: string, timestamp: Date, userId: string) {
-    const id = uuid();
-    super(MessageType.AssignUserId, groupId, id, timestamp, userId);
+export class AssignUserIdAction extends Action<Record<string, string>> {
+  constructor(groupId: string, data: string, timestamp: Date, userId: string) {
+    super(
+      MessageType.AssignUserId,
+      groupId,
+      { id: uuid(), name: data },
+      timestamp,
+      userId
+    );
   }
 }

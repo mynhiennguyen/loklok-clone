@@ -4,7 +4,7 @@ import crypto from "crypto";
 import WebSocket from "ws";
 
 export const uuid = () => {
-  return crypto.randomBytes(16).toString("hex");
+  return crypto.randomUUID();
 };
 
 // Probably doesn't belong here - TODO: move function

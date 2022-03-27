@@ -37,7 +37,6 @@ export class Message {
 export class MessageDecoder {
   static parse(message: string): Action {
     const msg: Record<string, any> = JSON.parse(message);
-    console.log(msg);
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ActiveDrawing) {
       return new ActiveDrawingAction(
@@ -90,7 +89,12 @@ export class MessageDecoder {
     } else if (msg.type === MessageType.ChangeGroup) {
       return new SendHistoryAction(msg.groupId, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.RequestUserId) {
-      return new AssignUserIdAction(msg.groupId, msg.timestamp, msg.userId);
+      return new AssignUserIdAction(
+        msg.groupId,
+        msg.data,
+        msg.timestamp,
+        msg.userId
+      );
     } else {
       throw new Error(`invalid message type received: ${msg.type}`);
     }

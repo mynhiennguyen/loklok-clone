@@ -159,11 +159,13 @@ export default defineComponent({
       return new InputStateManager(canvas, ws);
     },
     initWSConnection(requestUserId: boolean): void {
+      // open WebSocket connection
       if (process.env.NODE_ENV === "development") {
         this.ws = new WebSocket("ws://localhost:3000");
       } else {
         this.ws = new WebSocket("wss://loklok-clone.herokuapp.com/");
       }
+      // request userId for first time user
       if (requestUserId) {
         this.ws.onopen = (ev: Event) => {
           this.requestUserId();
@@ -193,8 +195,8 @@ export default defineComponent({
     requestUserId(): void {
       const msg: Message = new Message(
         MessageType.RequestUserID,
-        "Group A", //TODO: make group optional, remove value
-        null,
+        "Group A", // TODO: make group optional, remove value
+        this.$store.state.userName,
         undefined
       );
       this.ws.send(JSON.stringify(msg));
