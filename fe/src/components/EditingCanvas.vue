@@ -26,6 +26,7 @@ import {
   MessageType,
 } from "../types/messages/message";
 import { Color } from "../options";
+import { Group } from "../types/interfaces/group";
 
 export default defineComponent({
   name: "EditingCanvas",
@@ -160,11 +161,7 @@ export default defineComponent({
     },
     initWSConnection(requestUserId: boolean): void {
       // open WebSocket connection
-      if (process.env.NODE_ENV === "development") {
-        this.ws = new WebSocket("ws://localhost:3000");
-      } else {
-        this.ws = new WebSocket("wss://loklok-clone.herokuapp.com/");
-      }
+      this.ws = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
       // request userId for first time user
       if (requestUserId) {
         this.ws.onopen = (ev: Event) => {
@@ -200,6 +197,15 @@ export default defineComponent({
         undefined
       );
       this.ws.send(JSON.stringify(msg));
+    },
+    getGroups(): Promise<Group[]> {
+      return fetch(
+        `${process.env.VUE_APP_HTTP_URL}/groups?user=${this.$store.state.userId}`
+      )
+        .then((res) => {
+          return res.json();
+        })
+        .catch((err) => console.error(err));
     },
   },
 });

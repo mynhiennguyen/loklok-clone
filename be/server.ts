@@ -17,17 +17,45 @@ const PORT = process.env.PORT || 3000;
 // init 3 groups
 // TODO: dynamic groups
 const groups = new Map<string, Group>([
-  ["Group A", new Group("Group A")],
-  ["Group B", new Group("Group B")],
-  ["Group C", new Group("Group C")],
+  // ["Group A", new Group("Group A")],
+  // ["Group B", new Group("Group B")],
+  // ["Group C", new Group("Group C")],
 ]);
 const DEFAULT_GROUP_KEY = "Group A";
 
-// create HTTP server
-const router = express.Router();
+/* POSTGRES DATABASE */
+
+const db: Database = new PostgresDatabase();
+db.connect();
+
+/* HTTP SERVER */
+
+const router = express();
 const cors = require("cors");
-router.get("/", cors(), (request, response) => {
-  response.send(Array.from(groups.keys()));
+router.use(express.urlencoded({ extended: true }));
+router.use(express.json());
+router.use(cors());
+
+router.get("/groups", (request, response) => {
+  const userId = request.query.user as string;
+  if (userId) {
+    db.getGroupsByUser(userId)?.then((groups) => {
+      response.send(groups);
+    });
+  }
+});
+
+router.post("/groups", (request, response) => {
+  const groupData = request.body;
+  if (groupData) {
+    db.addGroup(groupData.groupname)?.then((groupId: string | void) => {
+      db.addGroupMembership(groupData.users, groupId as string);
+    });
+    // TODO: add response
+  }
+});
+router.get("/users", (request, response) => {
+  db.getAllUsers()?.then((users) => response.send(users));
 });
 const server = express()
   .use(router)
@@ -39,9 +67,7 @@ const wss = new WebSocket.Server({ server });
 // list of active users
 export const activeUsers = new Map<WebSocket, User>();
 
-// Database
-const db: Database = new PostgresDatabase();
-db.connect();
+/* WEBSOCKET SERVER */
 
 // handle connections
 wss.on("connection", (ws: WebSocket) => {
@@ -60,9 +86,10 @@ wss.on("connection", (ws: WebSocket) => {
       });
     } else if (action instanceof AssignUserIdAction) {
       ws.send(JSON.stringify(action.createMessage()));
-      if (action.data) db.addUser(action.data.id, action.data.name);
+      if (action.data) db.addUser(action.data.id, action.data.name); // save new user to DB
+      //TODO: return and set new ID in activeUsersList
+      // TODO: broadcastList
     } else if (group) {
-      // Broadcasted message
       //extract group and pushTo specific history of this group
       action.pushTo(group.historyStack);
       //broadcast to clients of this group
@@ -78,11 +105,10 @@ wss.on("connection", (ws: WebSocket) => {
 });
 
 const handleNewClientConnection = (ws: WebSocket) => {
-  // create user and assign ID
   const newUser: User = createUser(ws);
-  // add new user to list of active users and broadcast list to all other users
   activeUsers.set(ws, newUser);
-  broadcastListOfActiveUsers(activeUsers);
+
+  // broadcastListOfActiveUsers(activeUsers);
   // send history of default group (Group A) to client
   groups.get(DEFAULT_GROUP_KEY)?.historyStack.undoStack.forEach((m: Action) => {
     ws.send(JSON.stringify(m.createMessage()));

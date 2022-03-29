@@ -7,10 +7,10 @@ export interface Database {
   addUser(userId: string, userName: string): void;
   getAllUsers(): Promise<User[] | void> | undefined;
 
-  addGroup(groupName: string): void;
+  addGroup(groupName: string): Promise<string | void> | undefined;
   getAllGroups(): Promise<Group[] | void> | undefined;
   getGroupsByUser(userId: string): Promise<Group[] | void> | undefined;
 
-  addGroupMembership(userId: string, groupId: string): void;
+  addGroupMembership(userId: string | string[], groupId: string): void;
   deleteGroupMembership(groupMembershipId: string): void;
 }

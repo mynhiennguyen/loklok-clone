@@ -9,15 +9,18 @@
       @changeBackground="changeBackground"
       @changeLineColor="changeLineColor"
       @changeGroup="changeGroup"
+      :groups="groups"
+      @createGroup="openCreateGroupModal"
     ></ToolBar>
     <EditingCanvas
       ref="canvas"
       @isUndoRedoActive="updateIsUndoRedoActive"
     ></EditingCanvas>
     <RegisterModal
-      v-if="showModal"
+      v-if="showRegisterModal"
       @submitUserName="setNewUser"
     ></RegisterModal>
+    <CreateGroupModal v-if="showCreateGroupModal"></CreateGroupModal>
   </div>
 </template>
 
@@ -27,6 +30,8 @@ import EditingCanvas from "./components/EditingCanvas.vue";
 import ToolBar from "./components/ToolBar.vue";
 import { Color } from "./options";
 import RegisterModal from "./components/RegisterModal.vue";
+import CreateGroupModal from "./components/CreateGroupModal.vue";
+import { Group } from "./types/interfaces/group";
 
 export default defineComponent({
   name: "App",
@@ -34,12 +39,15 @@ export default defineComponent({
     EditingCanvas,
     ToolBar,
     RegisterModal,
+    CreateGroupModal,
   },
   data() {
     return {
       isUndoActive: false,
       isRedoActive: false,
-      showModal: false,
+      showRegisterModal: false,
+      showCreateGroupModal: false,
+      groups: [] as Group[],
     };
   },
   mounted(): void {
@@ -50,9 +58,14 @@ export default defineComponent({
       this.$store.commit("setUserName", user.name ?? "NO_NAME");
       this.$store.commit("setUserId", user.id ?? "NO_ID");
       (this.$refs.canvas as typeof EditingCanvas).initWSConnection();
-      //TODO: request canvases
+      // fetch groups for this user
+      (this.$refs.canvas as typeof EditingCanvas)
+        .getGroups()
+        .then((groups: Group[]) => {
+          this.groups = groups;
+        });
     } else {
-      this.showModal = true;
+      this.showRegisterModal = true;
     }
   },
   methods: {
@@ -80,10 +93,13 @@ export default defineComponent({
     },
     setNewUser(username: string) {
       this.$store.commit("setUserName", username);
-      this.showModal = false;
+      this.showRegisterModal = false;
 
       const canvas = this.$refs.canvas as typeof EditingCanvas;
       canvas.initWSConnection(true);
+    },
+    openCreateGroupModal() {
+      this.showCreateGroupModal = true;
     },
   },
 });

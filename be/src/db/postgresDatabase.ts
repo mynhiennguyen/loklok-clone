@@ -1,4 +1,4 @@
-import { Client } from "pg";
+import { Client, QueryResult } from "pg";
 import { Group } from "../types/group";
 import { User } from "../types/user";
 import { Database } from "./database";
@@ -6,17 +6,19 @@ import { Database } from "./database";
 // TODO: use singleton pattern
 
 export class PostgresDatabase implements Database {
-  client: Client | null = null;
+  client: Client;
 
-  connect(): void {
+  constructor() {
     this.client = new Client({
       connectionString: process.env.DATABASE_CONNECTION_STRING,
       ssl: {
         rejectUnauthorized: false,
       },
     });
-    this.client.connect();
-    this.getAllUsers();
+  }
+
+  connect(): void {
+    this.client.connect().catch((err) => console.log(err));
   }
   addUser(userId: string | undefined, userName: string | undefined): void {
     if (!userId || !userName) {
@@ -25,9 +27,11 @@ export class PostgresDatabase implements Database {
       );
       return;
     }
-    this.client?.query(
-      `INSERT INTO public."user"(id,name) VALUES('${userId}'::UUID,'${userName}')`
-    );
+    this.client
+      ?.query(
+        `INSERT INTO public."user"(id,name) VALUES('${userId}'::UUID,'${userName}')`
+      )
+      .catch((err) => console.log(err));
   }
   getAllUsers(): Promise<User[] | void> | undefined {
     return this.client
@@ -35,11 +39,13 @@ export class PostgresDatabase implements Database {
       .then((res) => res.rows as User[])
       .catch((err) => console.error(err));
   }
-  addGroup(groupName: string): void {
-    this.client
-      ?.query(
-        `INSERT INTO public."group"(id,name) VALUES(gen_random_uuid(),${groupName})`
+  addGroup(groupName: string): Promise<string | void> | undefined {
+    return this.client
+      .query(
+        `INSERT INTO public."group"(id,name) VALUES(gen_random_uuid(),'${groupName}')
+        RETURNING id`
       )
+      .then((res) => res.rows[0].id as string)
       .catch((err) => console.log(err));
   }
   getAllGroups(): Promise<Group[] | void> | undefined {
@@ -49,17 +55,25 @@ export class PostgresDatabase implements Database {
       .catch((err) => console.error(err));
   }
   getGroupsByUser(userId: string): Promise<Group[] | void> | undefined {
+    console.log("Retrieving groups for user :", userId);
     return this.client
       ?.query(
-        `SELECT * FROM public."group" LEFT JOIN public."group_membership" ON group.id=group_membership.${userId}`
+        `SELECT id,name FROM public."group" LEFT JOIN public."group_membership" ON public."group".id=group_membership.group WHERE public."group_membership".user='${userId}'::UUID`
       )
       .then((res) => res.rows as Group[])
       .catch((err) => console.error(err));
   }
-  addGroupMembership(userId: string, groupId: string): void {
-    this.client?.query(
-      `INSERT INTO public."group"(user,group) VALUES(${userId}, ${groupId})`
-    );
+
+  addGroupMembership(userIds: string | string[], groupId: string): void {
+    const userInsertPromises: Promise<QueryResult<any>>[] = [];
+    Array.from(userIds).forEach((userId) => {
+      userInsertPromises.push(
+        this.client.query(
+          `INSERT INTO public."group_membership"("user","group") VALUES('${userId}'::UUID, '${groupId}')`
+        )
+      );
+    });
+    Promise.all(userInsertPromises).catch((err) => console.log(err));
   }
   deleteGroupMembership(groupMembershipId: string): void {
     throw new Error("Method not implemented.");

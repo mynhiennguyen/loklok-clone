@@ -93,11 +93,12 @@
         id="image"
       />
     </div>
-    <select @change="changeGroup">
-      <option v-for="group in groups" :key="group" :value="group">{{
-        group
+    <select v-if="groups.length > 0" @change="changeGroup">
+      <option v-for="group in groups" :key="group.id" :value="group.id">{{
+        group.name
       }}</option>
     </select>
+    <button @click="onCreateGroup">Create Group</button>
   </div>
 </template>
 
@@ -112,6 +113,7 @@ export default defineComponent({
   props: {
     isUndoActive: Boolean,
     isRedoActive: Boolean,
+    groups: Array,
   },
   emits: [
     "undo",
@@ -120,6 +122,7 @@ export default defineComponent({
     "changeBackground",
     "changeLineColor",
     "changeGroup",
+    "createGroup",
   ],
   data() {
     return {
@@ -232,15 +235,7 @@ export default defineComponent({
       redoIcon: require("../assets/icons/redo.svg"),
       clearIcon: require("../assets/icons/delete.svg"),
       cameraIcon: require("../assets/icons/photo-camera.svg"),
-      groups: (null as unknown) as string[],
     };
-  },
-  mounted() {
-    //TODO: fetch once id is set
-    fetch("http://localhost:3000")
-      .then((res) => res.json())
-      .then((res) => (this.groups = res))
-      .catch((err) => console.log(err));
   },
   methods: {
     undo(): void {
@@ -268,6 +263,9 @@ export default defineComponent({
     changeGroup(e: Event): void {
       this.$store.commit("changeGroup", (e.target as HTMLSelectElement).value);
       this.$emit("changeGroup", (e.target as HTMLSelectElement).value);
+    },
+    onCreateGroup(e: Event): void {
+      this.$emit("createGroup");
     },
   },
 });
