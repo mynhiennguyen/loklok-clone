@@ -4,7 +4,7 @@ import { User } from "../types/user";
 export interface Database {
   connect(): void;
 
-  addUser(userId: string, userName: string): void;
+  addUser(userId: string, userName: string): Promise<string | void>;
   getAllUsers(): Promise<User[] | void> | undefined;
 
   addGroup(groupName: string): Promise<string | void> | undefined;

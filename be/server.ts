@@ -14,13 +14,8 @@ const dotenv = require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
 
-// init 3 groups
-// TODO: dynamic groups
-const groups = new Map<string, Group>([
-  // ["Group A", new Group("Group A")],
-  // ["Group B", new Group("Group B")],
-  // ["Group C", new Group("Group C")],
-]);
+// TODO
+const groups = new Map<string, Group>([]);
 const DEFAULT_GROUP_KEY = "Group A";
 
 /* POSTGRES DATABASE */
@@ -40,6 +35,7 @@ router.get("/groups", (request, response) => {
   const userId = request.query.user as string;
   if (userId) {
     db.getGroupsByUser(userId)?.then((groups) => {
+      if (!groups) response.send([]);
       response.send(groups);
     });
   }
@@ -86,9 +82,11 @@ wss.on("connection", (ws: WebSocket) => {
       });
     } else if (action instanceof AssignUserIdAction) {
       ws.send(JSON.stringify(action.createMessage()));
-      if (action.data) db.addUser(action.data.id, action.data.name); // save new user to DB
-      //TODO: return and set new ID in activeUsersList
-      // TODO: broadcastList
+      if (action.data)
+        db.addUser(action.data.id, action.data.name).then((id) => {
+          // TODO: update active users list
+          // TODO: broadcast list
+        });
     } else if (group) {
       //extract group and pushTo specific history of this group
       action.pushTo(group.historyStack);

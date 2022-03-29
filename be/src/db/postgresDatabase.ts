@@ -20,17 +20,22 @@ export class PostgresDatabase implements Database {
   connect(): void {
     this.client.connect().catch((err) => console.log(err));
   }
-  addUser(userId: string | undefined, userName: string | undefined): void {
+  addUser(
+    userId: string | undefined,
+    userName: string | undefined
+  ): Promise<string | void> {
     if (!userId || !userName) {
       console.error(
         "Error while trying to add user. No userId oder userName was given"
       );
-      return;
     }
-    this.client
+    return this.client
       ?.query(
-        `INSERT INTO public."user"(id,name) VALUES('${userId}'::UUID,'${userName}')`
+        `INSERT INTO public."user"(id,name) VALUES('${userId}'::UUID,'${userName}')
+        RETURNING id
+        `
       )
+      .then((res) => res.rows[0].id as string)
       .catch((err) => console.log(err));
   }
   getAllUsers(): Promise<User[] | void> | undefined {
