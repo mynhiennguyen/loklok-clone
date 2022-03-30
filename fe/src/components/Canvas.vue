@@ -18,14 +18,20 @@
 </template>
 
 <script lang="ts">
-import Vue, { defineComponent } from 'vue'
+import Vue, { defineComponent } from "vue";
 export default defineComponent({
-    name: "Canvas",
-    props: {},
-    methods: {
-        handlePointerDown(ev: PointerEvent) { this.$emit('pointerdown', ev)},
-        handlePointerMove(ev: PointerEvent) { this.$emit('pointermove', ev)},
-        handlePointerUp(ev: PointerEvent) {this.$emit('pointerup', ev)}
+  name: "Canvas",
+  props: {},
+  methods: {
+    handlePointerDown(ev: PointerEvent) {
+      this.$emit("userPointerDown", ev);
+    },
+    handlePointerMove(ev: PointerEvent) {
+      this.$emit("userPointerMove", ev);
+    },
+    handlePointerUp(ev: PointerEvent) {
+      this.$emit("userPointerUp", ev);
+    },
   },
 });
 </script>

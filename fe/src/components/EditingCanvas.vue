@@ -1,9 +1,9 @@
 <template>
   <div>
     <Canvas
-      @pointerdown="handlePointerDown"
-      @pointermove="handlePointerMove"
-      @pointerup="handlePointerUp"
+      @userPointerDown="handlePointerDown"
+      @userPointerMove="handlePointerMove"
+      @userPointerUp="handlePointerUp"
     ></Canvas>
     <active-users-display
       id="activeUsers"
@@ -26,15 +26,15 @@ import {
   MessageType,
 } from "../types/messages/message";
 import { Color } from "../options";
+import { Group } from "../types/interfaces/group";
 
 export default defineComponent({
   name: "EditingCanvas",
   props: {},
   components: {
     ActiveUsersDisplay,
-    Canvas
+    Canvas,
   },
-
   data() {
     return {
       canvas: (null as unknown) as CanvasUI,
@@ -50,38 +50,11 @@ export default defineComponent({
       return this.$store.state.lineThickness;
     },
   },
-  mounted(): void {
-    if (process.env.NODE_ENV === "development") {
-      this.ws = new WebSocket("ws://localhost:3000");
-    } else {
-      this.ws = new WebSocket("wss://loklok-clone.herokuapp.com/");
-    }
-
-    this.canvas = this.initCanvas("mainCanvas");
-    this.backgroundCanvas = this.initCanvas("backgroundCanvas");
-    this.inputStateManager = this.initInputStateManager(this.canvas, this.ws);
-
-    // Websocket commmunication
-    this.ws.onmessage = (msg: any) => {
-      const action: Action | undefined = MessageDecoder.parse(
-        msg.data,
-        this.canvas,
-        this.backgroundCanvas,
-        this.ws
-      );
-      action?.execute(this);
-    };
-
-    window.addEventListener("resize", () => {
-      this.resizeCanvas("mainCanvas");
-      this.resizeCanvas("backgroundCanvas");
-    }); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
-  },
   methods: {
     undo(): void {
       const msg: Message = new Message(
         MessageType.Undo,
-        this.$store.state.group,
+        this.$store.state.groupId,
         undefined,
         this.$store.state.userId
       );
@@ -90,7 +63,7 @@ export default defineComponent({
     redo(): void {
       const msg: Message = new Message(
         MessageType.Redo,
-        this.$store.state.group,
+        this.$store.state.groupId,
         undefined,
         this.$store.state.userId
       );
@@ -100,7 +73,7 @@ export default defineComponent({
       this.canvas.clear();
       const msg: Message = new Message(
         MessageType.Clear,
-        this.$store.state.group,
+        this.$store.state.groupId,
         undefined,
         this.$store.state.userId
       );
@@ -118,7 +91,7 @@ export default defineComponent({
       }).then((res) => {
         const msg: Message = new Message(
           MessageType.SetBackground,
-          this.$store.state.group,
+          this.$store.state.groupId,
           res,
           this.$store.state.userId
         );
@@ -129,20 +102,20 @@ export default defineComponent({
       // notify other users of color change via WS
       const msg: Message = new Message(
         MessageType.UserSelectedColor,
-        this.$store.state.group,
+        this.$store.state.groupId,
         color,
         this.$store.state.userId
       );
       this.ws.send(JSON.stringify(msg));
     },
-    changeGroup(group: string): void{
+    changeGroup(group: string): void {
       this.canvas.clear();
       //request history of new group
       const msg: Message = new Message(
-          MessageType.ChangeGroup,
-          this.$store.state.group,
-          undefined,
-          this.$store.state.userId
+        MessageType.ChangeGroup,
+        this.$store.state.groupId,
+        undefined,
+        this.$store.state.userId
       );
       this.ws.send(JSON.stringify(msg));
     },
@@ -185,6 +158,54 @@ export default defineComponent({
     },
     initInputStateManager(canvas: CanvasUI, ws: WebSocket): InputStateManager {
       return new InputStateManager(canvas, ws);
+    },
+    initWSConnection(requestUserId: boolean): void {
+      // open WebSocket connection
+      this.ws = new WebSocket(process.env.VUE_APP_WEBSOCKET_URL);
+      // request userId for first time user
+      if (requestUserId) {
+        this.ws.onopen = (ev: Event) => {
+          this.requestUserId();
+        };
+      }
+
+      this.canvas = this.initCanvas("mainCanvas");
+      this.backgroundCanvas = this.initCanvas("backgroundCanvas");
+      this.inputStateManager = this.initInputStateManager(this.canvas, this.ws);
+
+      // Main websocket commmunication
+      this.ws.onmessage = (msg: any) => {
+        const action: Action | undefined = MessageDecoder.parse(
+          msg.data,
+          this.canvas,
+          this.backgroundCanvas,
+          this.ws
+        );
+        action?.execute(this);
+      };
+
+      window.addEventListener("resize", () => {
+        this.resizeCanvas("mainCanvas");
+        this.resizeCanvas("backgroundCanvas");
+      }); //TODO: resizing will reset entire canvas, drawing needs to be redrawn
+    },
+    requestUserId(): void {
+      const msg: Message = new Message(
+        MessageType.RequestUserID,
+        "Group A", // TODO: make group optional, remove value
+        this.$store.state.userName,
+        undefined
+      );
+      this.ws.send(JSON.stringify(msg));
+    },
+    getGroups(): Promise<Group[]> {
+      return fetch(
+        `${process.env.VUE_APP_HTTP_URL}/groups?user=${this.$store.state.userId}`
+      )
+        .then((res) => {
+          return res.json();
+        })
+        .catch((err) => console.error(err));
     },
   },
 });

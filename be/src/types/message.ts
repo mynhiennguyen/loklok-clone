@@ -10,6 +10,7 @@ import {
   SetBackgroundAction,
   UndoAction,
   UserSelectedColorAction,
+  AssignUserIdAction,
 } from "./action";
 
 /**
@@ -22,7 +23,7 @@ import {
 export class Message {
   constructor(
     public readonly type: MessageType,
-    public readonly group: string,
+    public readonly groupId: string,
     private readonly data?: any,
     private readonly timestamp?: Date,
     private readonly userId?: string
@@ -39,54 +40,61 @@ export class MessageDecoder {
     if (!msg.type) throw new Error("no message type received");
     else if (msg.type === MessageType.ActiveDrawing) {
       return new ActiveDrawingAction(
-        msg.group,
+        msg.groupId,
         msg.data,
         msg.timestamp,
         msg.userId
       );
     } else if (msg.type === MessageType.ActiveErasing) {
       return new ActiveErasingAction(
-        msg.group,
+        msg.groupId,
         msg.data,
         msg.timestamp,
         msg.userId
       );
     } else if (msg.type === MessageType.CompletedDrawing) {
       return new CompletedDrawingAction(
-        msg.group,
+        msg.groupId,
         msg.data,
         msg.timestamp,
         msg.userId
       );
     } else if (msg.type === MessageType.CompletedErasing) {
       return new CompletedErasingAction(
-        msg.group,
+        msg.groupId,
         msg.data,
         msg.timestamp,
         msg.userId
       );
     } else if (msg.type === MessageType.Undo) {
-      return new UndoAction(msg.group, msg.timestamp, msg.userId);
+      return new UndoAction(msg.groupId, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.Redo) {
-      return new RedoAction(msg.group, msg.timestamp, msg.userId);
+      return new RedoAction(msg.groupId, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.SetBackground) {
       return new SetBackgroundAction(
-        msg.group,
+        msg.groupId,
         msg.data,
         msg.timestamp,
         msg.userId
       );
     } else if (msg.type === MessageType.UserSelectedColor) {
       return new UserSelectedColorAction(
-        msg.group,
+        msg.groupId,
         msg.data,
         msg.timestamp,
         msg.userId
       );
     } else if (msg.type === MessageType.Clear) {
-      return new ClearAction(msg.group, msg.timestamp, msg.userId);
+      return new ClearAction(msg.groupId, msg.timestamp, msg.userId);
     } else if (msg.type === MessageType.ChangeGroup) {
-      return new SendHistoryAction(msg.group, msg.timestamp, msg.userId);
+      return new SendHistoryAction(msg.groupId, msg.timestamp, msg.userId);
+    } else if (msg.type === MessageType.RequestUserId) {
+      return new AssignUserIdAction(
+        msg.groupId,
+        msg.data,
+        msg.timestamp,
+        msg.userId
+      );
     } else {
       throw new Error(`invalid message type received: ${msg.type}`);
     }
@@ -102,6 +110,7 @@ export enum MessageType {
   Redo = "REDO",
   SetBackground = "SET_BACKGROUND",
   UserSelectedColor = "USER_SELECTED_COLOR",
+  RequestUserId = "REQUEST_USERID",
   AssignUserId = "ASSIGN_USERID",
   ActiveUsersList = "LIST_OF_ACTIVE_USERS",
   Clear = "CLEAR",

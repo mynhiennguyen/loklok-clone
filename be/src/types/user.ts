@@ -1,20 +1,14 @@
-import { uuid } from "../utils/utils";
-
 export class User {
   userId: string = "NO_ID";
   username: string = "NO_NAME";
   color: Color = Color.BLACK;
 
-  constructor() {
-    this.userId = uuid();
-    this.setUsername("TODO");
+  setUserId(userId: string) {
+    this.userId = userId;
   }
-
-  // currently using first two chars from userID as username. TODO: do something more fancy ✨
   setUsername(username: string) {
-    this.username = this.userId.substring(0, 2);
+    this.username = username;
   }
-
   setColor(color: Color) {
     this.color = color;
   }

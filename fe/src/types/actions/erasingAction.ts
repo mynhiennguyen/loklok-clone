@@ -33,13 +33,13 @@ export class ErasingAction extends Action {
 
         //send via websocket
         const data = { points: [[x1, y1],[x2, y2]], lineWidth: this.lineWidth }
-        const msg: Message = new Message(MessageType.ActiveErasing, store.state.group, data, store.state.userId)
+        const msg: Message = new Message(MessageType.ActiveErasing, store.state.groupId, data, store.state.userId)
         this.ws.send(JSON.stringify(msg))
     }
 
     override saveAction() {
         const data = { points: this.points, lineWidth: this.lineWidth }
-        const msg: Message = new Message(MessageType.CompletedErasing, store.state.group, data, store.state.userId)
+        const msg: Message = new Message(MessageType.CompletedErasing, store.state.groupId, data, store.state.userId)
         this.ws.send(JSON.stringify(msg));
     }
 }

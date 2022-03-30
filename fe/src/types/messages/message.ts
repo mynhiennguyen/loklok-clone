@@ -17,12 +17,13 @@ export enum MessageType {
   Undo = "UNDO",
   Redo = "REDO",
   SetBackground = "SET_BACKGROUND",
+  RequestUserID = "REQUEST_USERID",
   ReceiveUserID = "ASSIGN_USERID",
   ActiveUsersList = "LIST_OF_ACTIVE_USERS",
   UserSelectedColor = "USER_SELECTED_COLOR",
   Clear = "CLEAR",
   UndoRedoAvailabilities = "UNDO_REDO_AVAILABILITIES",
-  ChangeGroup = "CHANGE_GROUP"
+  ChangeGroup = "CHANGE_GROUP",
 }
 
 export class Message {
@@ -30,9 +31,9 @@ export class Message {
 
   constructor(
     private readonly type: MessageType,
-    private readonly group: string,
+    private readonly groupId: string,
     private readonly data?: any,
-    private readonly userId?: string,
+    private readonly userId?: string
   ) {
     this.timestamp = new Date();
   }
@@ -46,9 +47,10 @@ export class MessageDecoder {
     ws: WebSocket
   ): Action | undefined {
     const msg: any = JSON.parse(message);
-    console.log(msg);
+    console.log("Message received: ", msg);
     if (!msg.type) throw new Error("no message type received");
-    else if(msg.group !== store.state.group) return undefined; //ignore message
+    else if (msg.groupId !== store.state.groupId) return undefined;
+    //ignore message
     else if (msg.type === MessageType.ReceiveUserID) {
       return new UserIdAssignmentAction(msg.data, canvas, ws);
     } else if (
